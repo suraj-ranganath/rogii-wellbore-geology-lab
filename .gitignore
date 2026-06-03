@@ -1,0 +1,22 @@
+.DS_Store
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Keep competition data, generated models, and submissions out of git.
+data/raw/
+data/interim/
+data/processed/
+models/
+outputs/
+submissions/
+logs/
+mlruns/
+wandb/
+
+# Kaggle credentials must stay outside the repo.
+kaggle.json

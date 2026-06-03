@@ -1,0 +1,28 @@
+competition:
+  slug: rogii-wellbore-geology-prediction
+
+paths:
+  raw_dir: data/raw/rogii-wellbore-geology-prediction
+  processed_dir: data/processed
+  model_dir: models
+  output_dir: outputs
+  submission_dir: submissions
+
+validation:
+  n_splits: 5
+  random_state: 204
+
+baseline:
+  model: lightgbm
+  prediction_mask: tvt_input_missing_with_target
+  lgbm:
+    n_estimators: 800
+    learning_rate: 0.03
+    num_leaves: 63
+    subsample: 0.9
+    colsample_bytree: 0.85
+    reg_alpha: 0.0
+    reg_lambda: 5.0
+    min_child_samples: 20
+    random_state: 204
+    n_jobs: -1
