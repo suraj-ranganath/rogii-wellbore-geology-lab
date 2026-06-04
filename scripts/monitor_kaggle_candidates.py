@@ -27,6 +27,7 @@ class Candidate:
     version: int
     message: str
     output_dir: Path
+    kernel_state_path: Path | None = None
 
 
 CANDIDATES = [
@@ -43,6 +44,14 @@ CANDIDATES = [
         version=1,
         message="super solution top3 physics tree stack",
         output_dir=Path("outputs/kaggle_super_solution_top3_v1"),
+    ),
+    Candidate(
+        name="target_free_alignment_gated",
+        kernel="surajranganath17/rogii-strat-align-sidecar-v2",
+        version=1,
+        message="target free alignment gated",
+        output_dir=Path("outputs/kaggle_target_free_alignment_gated_v1"),
+        kernel_state_path=Path("outputs/target_free_push_state.json"),
     ),
 ]
 
@@ -76,11 +85,24 @@ def save_state(state: dict) -> None:
 
 
 def kernel_status(kernel: str) -> str:
-    result = run_cmd(["uv", "run", "kaggle", "kernels", "status", kernel])
+    result = run_cmd(["uv", "run", "kaggle", "kernels", "status", kernel], check=False)
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout).strip().splitlines()
+        suffix = detail[-1] if detail else f"exit={result.returncode}"
+        return f"UNAVAILABLE: {suffix}"
     match = re.search(r'has status "([^"]+)"', result.stdout)
     if not match:
         return "UNKNOWN"
     return match.group(1)
+
+
+def candidate_kernel(candidate: Candidate) -> str:
+    if candidate.kernel_state_path and candidate.kernel_state_path.is_file():
+        state = json.loads(candidate.kernel_state_path.read_text())
+        accepted_kernel = state.get("accepted_kernel")
+        if accepted_kernel:
+            return str(accepted_kernel)
+    return candidate.kernel
 
 
 def submissions_text() -> str:
@@ -115,7 +137,7 @@ def download_output(candidate: Candidate) -> Path:
             "kaggle",
             "kernels",
             "output",
-            candidate.kernel,
+            candidate_kernel(candidate),
             "-p",
             str(candidate.output_dir),
         ]
@@ -159,7 +181,7 @@ def submit_candidate(candidate: Candidate) -> None:
             "submit",
             COMPETITION,
             "-k",
-            candidate.kernel,
+            candidate_kernel(candidate),
             "-v",
             str(candidate.version),
             "-f",
@@ -182,6 +204,8 @@ def monitor(timeout_minutes: int, poll_seconds: int) -> None:
         for candidate in CANDIDATES:
             if candidate.name in state["submitted"]:
                 continue
+            if candidate.name in state["failed"]:
+                continue
             if already_submitted(submission_table, candidate.message):
                 state["submitted"][candidate.name] = {
                     "message": candidate.message,
@@ -190,15 +214,22 @@ def monitor(timeout_minutes: int, poll_seconds: int) -> None:
                 save_state(state)
                 continue
             if today_count >= DAILY_SUBMISSION_CAP:
-                print("daily submission cap reached; skipping remaining candidates", flush=True)
-                return
+                print(
+                    "daily submission cap reached; will retry on a later poll",
+                    flush=True,
+                )
+                break
 
-            status = kernel_status(candidate.kernel)
+            status = kernel_status(candidate_kernel(candidate))
             print(f"{candidate.name}: {status}", flush=True)
             if "COMPLETE" in status:
                 output_path = download_output(candidate)
                 validate_submission(output_path)
-                submit_candidate(candidate)
+                try:
+                    submit_candidate(candidate)
+                except RuntimeError as exc:
+                    print(f"{candidate.name}: submit failed, will retry: {exc}", flush=True)
+                    continue
                 today_count += 1
                 state["submitted"][candidate.name] = {
                     "message": candidate.message,
