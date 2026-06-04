@@ -1,0 +1,17 @@
+{
+  "id": "surajranganath17/rogii-public-anti-target-free-extrapolate",
+  "title": "ROGII Public Anti Target-Free Extrapolate",
+  "code_file": "static_public_submission.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": [],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "kernel_sources": [],
+  "model_sources": []
+}

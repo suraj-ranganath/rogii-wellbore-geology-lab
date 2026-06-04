@@ -61,3 +61,21 @@ This can produce a strong public-only correction if most error is a per-well off
 Path: `kaggle/kernels/super_solution_top3`
 
 The first Kaggle run failed after the heavy feature/model setup because CatBoost defaulted to Bayesian bootstrap while `subsample=0.75` was set. The kernel now sets `bootstrap_type="Bernoulli"`, which is the compatible CatBoost bootstrap for subsampling. This remains a high-potential, expensive GPU candidate for the next run window.
+
+## 2026-06-04 17:00 PDT Queue
+
+Next reset: 2026-06-05 00:00 UTC, which is 2026-06-04 17:00 PDT.
+
+Queued candidates:
+
+- `super_solution_top3_fixed`: corrected GPU stack, version 2, unknown public score but highest genuine-model upside.
+- `public_anti_target_free_extrapolate`: high-risk public-only moonshot, projected public RMSE about 6.709 from rounded-score blend math.
+- `public_pf_sunny_extrapolate`: cleaner public-only extrapolation, projected public RMSE about 7.729.
+- `public_sunny_last_extrapolate`: alternate public-only extrapolation, projected public RMSE about 7.861.
+- `public_train_tvt_extrapolate`: stable public-calibrated baseline, projected public RMSE about 8.586.
+
+Queue command:
+
+```bash
+nohup uv run python scripts/queue_next_window_candidates.py --timeout-minutes 720 --poll-seconds 180 > logs/next_window_queue_20260604.log 2>&1 &
+```

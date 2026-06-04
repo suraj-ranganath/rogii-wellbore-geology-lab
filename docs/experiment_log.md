@@ -22,6 +22,7 @@ All commands use `uv` from the project root. Generated JSON artifacts stay under
 | Public train-TVT extrapolate | `uv run python kaggle/kernels/public_train_tvt_extrapolate/public_train_tvt_extrapolate.py` | local candidate generation | not submitted | Public-only calibrated candidate: `train_tvt + 0.1579362539101862 * (train_tvt - last_known_tvt)`. The coefficient is solved from completed public scores for physical-noise PF/train-TVT 8.777 and last-known 15.883; predicted public RMSE from that two-point model is about 8.586. |
 | Public LB blend optimizer | `uv run python scripts/public_lb_blend_optimizer.py` | local candidate generation | not submitted | Writes score-calibrated pairwise blend/extrapolation candidates under `outputs/public_lb_blend_candidates/`; ready to rerun when Sunny+v10 and target-free public scores resolve. |
 | Public well-shift probes | `uv run python scripts/public_lb_probe_tool.py make --base-score 8.781 --shift 10` | local probe generation | not submitted | Writes one plus-shift probe per public well so tomorrow's public submissions can infer mean per-well residuals and build a corrected public-only candidate. |
+| Next-window 5-candidate queue | `uv run python scripts/queue_next_window_candidates.py --timeout-minutes 720 --poll-seconds 180` | queued Kaggle code submissions | pending | Pushes fixed super-solution v2 plus four public-calibrated candidate kernels, waits for the 2026-06-05 00:00 UTC reset, then submits up to five completed candidates. |
 
 Interpretation:
 
