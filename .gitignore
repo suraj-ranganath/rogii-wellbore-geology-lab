@@ -14,9 +14,11 @@ data/processed/
 models/
 outputs/
 submissions/
+submission.csv
 logs/
 mlruns/
 wandb/
+kaggle/kernels/**/submission.csv
 
 # Kaggle credentials must stay outside the repo.
 kaggle.json

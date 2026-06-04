@@ -12,6 +12,7 @@ All commands use `uv` from the project root. Generated JSON artifacts stay under
 | Residual LGBM smoke | `uv run rogii cv-baseline --config configs/smoke.yaml --output outputs/smoke_cv.json` | first 30 train wells, 3 GroupKFold splits | 17.22 | Baseline residual target before alignment features. |
 | + prefix-NCC smoke | `uv run rogii cv-baseline --config configs/smoke.yaml --output outputs/smoke_cv_prefix_ncc.json` | first 30 train wells, 3 GroupKFold splits | 17.07 | Adds target-free GR self-correlation against known prefix. |
 | + prefix-NCC + beam smoke | `uv run rogii cv-baseline --config configs/smoke.yaml --output outputs/smoke_cv_prefix_ncc_beam.json` | first 30 train wells, 3 GroupKFold splits | 16.65 | Adds deterministic typewell GR beam paths and residual features. |
+| Kaggle calibration candidate | `python kaggle/kernels/last_known_baseline/last_known_baseline.py` | hidden rerun target, local visible smoke only | 15.91 local CV prior | Self-contained code-submission candidate to validate Kaggle notebook plumbing. |
 
 Interpretation:
 
