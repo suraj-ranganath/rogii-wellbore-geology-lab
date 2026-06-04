@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import gzip
+import base64
 import json
-import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -59,7 +58,9 @@ STATIC_KERNELS = [
 
 STATIC_SCRIPT = '''from __future__ import annotations
 
+import base64
 import gzip
+import io
 from pathlib import Path
 
 import numpy as np
@@ -69,6 +70,9 @@ COMPETITION_SLUG = "rogii-wellbore-geology-prediction"
 CANDIDATE_NAME = "{name}"
 EXPECTED_PUBLIC_RMSE = "{expected_public_rmse}"
 NOTE = "{note}"
+EMBEDDED_CSV_GZ_B64 = """
+{embedded_csv_gz_b64}
+"""
 
 
 def candidate_data_dirs() -> list[Path]:
@@ -94,8 +98,8 @@ def find_data_dir() -> Path:
 def main() -> None:
     data_dir = find_data_dir()
     sample = pd.read_csv(data_dir / "sample_submission.csv")[["id"]]
-    embedded_path = Path(__file__).with_name("candidate_submission.csv.gz")
-    with gzip.open(embedded_path, "rt") as handle:
+    payload = base64.b64decode(EMBEDDED_CSV_GZ_B64)
+    with gzip.open(io.BytesIO(payload), "rt") as handle:
         candidate = pd.read_csv(handle)
 
     if list(candidate.columns) != ["id", "tvt"]:
@@ -137,6 +141,8 @@ def write_static_kernel(kernel: StaticKernel) -> None:
 
     kernel_dir = Path("kaggle/kernels") / kernel.name
     kernel_dir.mkdir(parents=True, exist_ok=True)
+    compressed = gzip_compress(kernel.source_csv.read_bytes())
+    embedded_csv_gz_b64 = base64.b64encode(compressed).decode("ascii")
 
     metadata = {
         "id": kernel.kernel_id,
@@ -161,16 +167,21 @@ def write_static_kernel(kernel: StaticKernel) -> None:
             name=kernel.name,
             expected_public_rmse=kernel.expected_public_rmse,
             note=kernel.note,
+            embedded_csv_gz_b64=embedded_csv_gz_b64,
         )
     )
 
-    with (
-        kernel.source_csv.open("rb") as source,
-        gzip.open(kernel_dir / "candidate_submission.csv.gz", "wb", compresslevel=9) as dest,
-    ):
-        shutil.copyfileobj(source, dest)
+    stale_payload = kernel_dir / "candidate_submission.csv.gz"
+    if stale_payload.exists():
+        stale_payload.unlink()
 
     print(f"materialized {kernel.name}: {kernel.source_csv} -> {kernel_dir}")
+
+
+def gzip_compress(payload: bytes) -> bytes:
+    import gzip
+
+    return gzip.compress(payload, compresslevel=9, mtime=0)
 
 
 def main() -> None:

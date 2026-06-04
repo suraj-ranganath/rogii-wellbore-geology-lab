@@ -69,9 +69,9 @@ Next reset: 2026-06-05 00:00 UTC, which is 2026-06-04 17:00 PDT.
 Queued candidates:
 
 - `super_solution_top3_fixed`: corrected GPU stack, version 2, unknown public score but highest genuine-model upside.
-- `public_anti_target_free_extrapolate`: high-risk public-only moonshot, projected public RMSE about 6.709 from rounded-score blend math.
-- `public_pf_sunny_extrapolate`: cleaner public-only extrapolation, projected public RMSE about 7.729.
-- `public_sunny_last_extrapolate`: alternate public-only extrapolation, projected public RMSE about 7.861.
+- `public_anti_target_free_extrapolate`: high-risk public-only moonshot, projected public RMSE about 6.709 from rounded-score blend math. Static kernel version 2 is complete and preflight-validated.
+- `public_pf_sunny_extrapolate`: cleaner public-only extrapolation, projected public RMSE about 7.729. Static kernel version 2 is complete and preflight-validated.
+- `public_sunny_last_extrapolate`: alternate public-only extrapolation, projected public RMSE about 7.861. Static kernel version 2 is complete and preflight-validated.
 - `public_train_tvt_extrapolate`: stable public-calibrated baseline, projected public RMSE about 8.586.
 
 Queue command:

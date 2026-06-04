@@ -44,7 +44,7 @@ CANDIDATES = [
     Candidate(
         name="public_anti_target_free_extrapolate",
         kernel="surajranganath17/rogii-public-anti-target-free-extrapolate",
-        version=1,
+        version=2,
         message="public anti target-free extrapolate moonshot",
         kernel_dir=Path("kaggle/kernels/public_anti_target_free_extrapolate"),
         output_dir=Path("outputs/next_window/public_anti_target_free_extrapolate"),
@@ -52,7 +52,7 @@ CANDIDATES = [
     Candidate(
         name="public_pf_sunny_extrapolate",
         kernel="surajranganath17/rogii-public-pf-sunny-extrapolate",
-        version=1,
+        version=2,
         message="public pf sunny extrapolate alpha 5.05551",
         kernel_dir=Path("kaggle/kernels/public_pf_sunny_extrapolate"),
         output_dir=Path("outputs/next_window/public_pf_sunny_extrapolate"),
@@ -60,7 +60,7 @@ CANDIDATES = [
     Candidate(
         name="public_sunny_last_extrapolate",
         kernel="surajranganath17/rogii-public-sunny-last-extrapolate",
-        version=1,
+        version=2,
         message="public sunny last-known extrapolate alpha -0.279964",
         kernel_dir=Path("kaggle/kernels/public_sunny_last_extrapolate"),
         output_dir=Path("outputs/next_window/public_sunny_last_extrapolate"),
