@@ -45,12 +45,14 @@ These are intentionally lightweight and safe to run during setup:
 uv run pytest
 uv run ruff check .
 uv run rogii inspect-data
+uv run rogii audit-data
 ```
 
 Training commands exist, but should be launched only when we are ready for an experiment:
 
 ```bash
 uv run rogii train-baseline --config configs/default.yaml
+uv run rogii predict-submission --model models/baseline.joblib
 ```
 
 The code never submits to Kaggle. Submission upload stays manual until explicitly requested.

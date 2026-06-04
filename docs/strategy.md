@@ -18,6 +18,8 @@ The competition is not a generic tabular regression problem. The task brief desc
 4. GR-to-GR correlation features between horizontal segments and typewell TVT windows.
 5. Spatial offset features from nearby training wells: distance, azimuth, local dip, residual transfer.
 
+The visible test files overlap three train wells with known target values. Treat any copy-from-train result as a public-slice diagnostic only, not as model quality. The default baseline also excludes train-only formation-top columns because visible test does not provide them.
+
 ## Phase 2: Serious Models
 
 - LightGBM/CatBoost/XGBoost ensembles with GroupKFold by well.

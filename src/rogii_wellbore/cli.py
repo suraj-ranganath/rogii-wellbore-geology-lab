@@ -8,6 +8,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from rogii_wellbore.audit import audit_dataset
 from rogii_wellbore.baseline import cross_validate_baseline, train_full_baseline
 from rogii_wellbore.data import (
     download_competition,
@@ -18,6 +19,7 @@ from rogii_wellbore.data import (
 )
 from rogii_wellbore.features import canonicalize, prediction_mask
 from rogii_wellbore.paths import raw_competition_dir
+from rogii_wellbore.submission import make_model_submission
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -25,6 +27,9 @@ console = Console()
 DEFAULT_RAW_DIR = raw_competition_dir()
 DEFAULT_CONFIG = Path("configs/default.yaml")
 DEFAULT_CV_OUTPUT = Path("outputs/baseline_cv.json")
+DEFAULT_AUDIT_OUTPUT = Path("outputs/data_audit.json")
+DEFAULT_MODEL = Path("models/baseline.joblib")
+DEFAULT_SUBMISSION_OUTPUT = Path("submissions/baseline_submission.csv")
 
 OUTPUT_DIR_OPTION = typer.Option(
     DEFAULT_RAW_DIR,
@@ -35,6 +40,9 @@ OUTPUT_DIR_OPTION = typer.Option(
 DATA_DIR_OPTION = typer.Option(DEFAULT_RAW_DIR, "--data-dir", "-d")
 CONFIG_OPTION = typer.Option(DEFAULT_CONFIG, "--config", "-c")
 CV_OUTPUT_OPTION = typer.Option(DEFAULT_CV_OUTPUT, "--output", "-o")
+AUDIT_OUTPUT_OPTION = typer.Option(DEFAULT_AUDIT_OUTPUT, "--output", "-o")
+MODEL_OPTION = typer.Option(DEFAULT_MODEL, "--model", "-m")
+SUBMISSION_OUTPUT_OPTION = typer.Option(DEFAULT_SUBMISSION_OUTPUT, "--output", "-o")
 FORCE_OPTION = typer.Option(False, "--force", help="Force Kaggle API redownload.")
 SAMPLE_ROWS_OPTION = typer.Option(200, "--sample-rows", min=10)
 
@@ -66,6 +74,16 @@ def inspect_data(
             str(sum(pair.typewell_path is None for pair in split_pairs)),
         )
     console.print(table)
+
+    train_ids = {pair.well_id for pair in pairs if pair.split == "train"}
+    test_ids = {pair.well_id for pair in pairs if pair.split == "test"}
+    overlap = sorted(train_ids & test_ids)
+    if overlap:
+        preview = ", ".join(overlap[:10])
+        suffix = "" if len(overlap) <= 10 else f", ... +{len(overlap) - 10} more"
+        console.print(f"Train/test well ID overlap: {len(overlap)} ({preview}{suffix})")
+    else:
+        console.print("Train/test well ID overlap: 0")
 
     sample_submission = find_sample_submission(data_dir)
     if sample_submission:
@@ -101,6 +119,19 @@ def inspect_data(
         console.print(pd.DataFrame(mask_rows))
 
 
+@app.command("audit-data")
+def audit_data(
+    data_dir: Path = DATA_DIR_OPTION,
+    output: Path = AUDIT_OUTPUT_OPTION,
+) -> None:
+    audit = audit_dataset(data_dir)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w", encoding="utf-8") as handle:
+        json.dump(audit, handle, indent=2)
+    console.print_json(json.dumps(audit))
+    console.print(f"Wrote data audit to [bold]{output}[/bold]")
+
+
 @app.command("cv-baseline")
 def cv_baseline(
     config: Path = CONFIG_OPTION,
@@ -121,3 +152,13 @@ def train_baseline(
     model_path, summary = train_full_baseline(config)
     console.print_json(json.dumps(summary))
     console.print(f"Wrote model to [bold]{model_path}[/bold]")
+
+
+@app.command("predict-submission")
+def predict_submission(
+    data_dir: Path = DATA_DIR_OPTION,
+    model: Path = MODEL_OPTION,
+    output: Path = SUBMISSION_OUTPUT_OPTION,
+) -> None:
+    path = make_model_submission(data_dir=data_dir, model_path=model, output_path=output)
+    console.print(f"Wrote local submission file to [bold]{path}[/bold]")

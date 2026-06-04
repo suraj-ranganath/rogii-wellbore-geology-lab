@@ -10,9 +10,9 @@ import pandas as pd
 
 from rogii_wellbore.paths import COMPETITION_SLUG
 
-HORIZONTAL_RE = re.compile(r"(?P<well>Well\d+)__horizontal_well\.csv$", re.IGNORECASE)
+HORIZONTAL_RE = re.compile(r"(?P<well>.+)__horizontal_well\.csv$", re.IGNORECASE)
 TYPEWELL_RE = re.compile(
-    r"(?P<well>Well\d+)__typewell__(?P<typewell>Typewell\d+)\.csv$", re.IGNORECASE
+    r"(?P<well>.+)__typewell(?:__(?P<typewell>.+))?\.csv$", re.IGNORECASE
 )
 
 
@@ -43,36 +43,37 @@ def parse_typewell_filename(path: Path) -> tuple[str, str] | None:
     match = TYPEWELL_RE.search(path.name)
     if not match:
         return None
-    return match.group("well"), match.group("typewell")
+    well_id = match.group("well")
+    return well_id, match.group("typewell") or well_id
 
 
 def scan_wells(root: Path) -> list[WellPair]:
     """Find horizontal/typewell file pairs under a competition data directory."""
     root = Path(root)
-    horizontal_paths: dict[str, Path] = {}
-    typewell_paths: dict[str, tuple[str, Path]] = {}
+    horizontal_paths: dict[tuple[str, str], Path] = {}
+    typewell_paths: dict[tuple[str, str], tuple[str, Path]] = {}
 
     for path in sorted(root.rglob("*.csv")):
         well_id = parse_horizontal_filename(path)
         if well_id:
-            horizontal_paths[well_id] = path
+            horizontal_paths[(infer_split(path), well_id)] = path
             continue
 
         parsed_typewell = parse_typewell_filename(path)
         if parsed_typewell:
             well_id, typewell_id = parsed_typewell
-            typewell_paths[well_id] = (typewell_id, path)
+            typewell_paths[(infer_split(path), well_id)] = (typewell_id, path)
 
     pairs: list[WellPair] = []
-    for well_id, horizontal_path in sorted(horizontal_paths.items()):
-        typewell_id, typewell_path = typewell_paths.get(well_id, (None, None))
+    for (split, well_id), horizontal_path in sorted(horizontal_paths.items()):
+        typewell_id, typewell_path = typewell_paths.get((split, well_id), (None, None))
         pairs.append(
             WellPair(
                 well_id=well_id,
                 typewell_id=typewell_id,
                 horizontal_path=horizontal_path,
                 typewell_path=typewell_path,
-                split=infer_split(horizontal_path),
+                split=split,
             )
         )
     return pairs

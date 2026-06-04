@@ -12,6 +12,9 @@ validation:
   n_splits: 5
   random_state: 204
 
+features:
+  include_extra_numeric: false
+
 baseline:
   model: lightgbm
   prediction_mask: tvt_input_missing_with_target

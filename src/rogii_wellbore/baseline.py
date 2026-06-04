@@ -9,12 +9,12 @@ import numpy as np
 import pandas as pd
 import yaml
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GroupKFold
 from sklearn.pipeline import Pipeline
 
 from rogii_wellbore.data import scan_wells
 from rogii_wellbore.features import load_training_frame
+from rogii_wellbore.metrics import rmse
 
 
 def load_config(path: Path) -> dict[str, Any]:
@@ -54,7 +54,10 @@ def cross_validate_baseline(config_path: Path) -> dict[str, Any]:
     config = load_config(config_path)
     raw_dir = Path(config["paths"]["raw_dir"])
     pairs = [pair for pair in scan_wells(raw_dir) if pair.split in {"train", "unknown"}]
-    x_raw, y, groups = load_training_frame(pairs)
+    x_raw, y, groups = load_training_frame(
+        pairs,
+        include_extra_numeric=bool(config.get("features", {}).get("include_extra_numeric", False)),
+    )
     x = select_numeric_features(x_raw)
 
     n_splits = min(int(config["validation"]["n_splits"]), groups.nunique())
@@ -68,7 +71,7 @@ def cross_validate_baseline(config_path: Path) -> dict[str, Any]:
         model = make_pipeline(config)
         model.fit(x.iloc[train_idx], y.iloc[train_idx])
         pred = model.predict(x.iloc[valid_idx])
-        score = float(mean_squared_error(y.iloc[valid_idx], pred, squared=False))
+        score = rmse(y.iloc[valid_idx].to_numpy(), pred)
         oof.iloc[valid_idx] = pred
         fold_scores.append(
             {
@@ -79,7 +82,7 @@ def cross_validate_baseline(config_path: Path) -> dict[str, Any]:
             }
         )
 
-    cv_score = float(mean_squared_error(y, oof, squared=False))
+    cv_score = rmse(y.to_numpy(), oof.to_numpy())
     return {
         "cv_rmse": cv_score,
         "folds": fold_scores,
@@ -99,7 +102,10 @@ def train_full_baseline(config_path: Path) -> tuple[Path, dict[str, Any]]:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     pairs = [pair for pair in scan_wells(raw_dir) if pair.split in {"train", "unknown"}]
-    x_raw, y, _ = load_training_frame(pairs)
+    x_raw, y, _ = load_training_frame(
+        pairs,
+        include_extra_numeric=bool(config.get("features", {}).get("include_extra_numeric", False)),
+    )
     x = select_numeric_features(x_raw)
     model = make_pipeline(config)
     model.fit(x, y)

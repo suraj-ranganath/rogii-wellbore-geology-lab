@@ -88,7 +88,12 @@ def prediction_mask(horizontal: pd.DataFrame, require_target: bool) -> pd.Series
     return mask
 
 
-def build_horizontal_features(horizontal: pd.DataFrame, typewell: pd.DataFrame | None = None) -> pd.DataFrame:
+def build_horizontal_features(
+    horizontal: pd.DataFrame,
+    typewell: pd.DataFrame | None = None,
+    include_extra_numeric: bool = False,
+) -> pd.DataFrame:
+    raw_horizontal = horizontal.copy()
     horizontal = canonicalize(horizontal, required=("md",))
     features = pd.DataFrame(index=horizontal.index)
     features["row_idx"] = np.arange(len(horizontal), dtype=float)
@@ -154,7 +159,26 @@ def build_horizontal_features(horizontal: pd.DataFrame, typewell: pd.DataFrame |
         typewell_features = _typewell_projection_features(typewell, features.get("linear_tvt_prior"))
         features = pd.concat([features, typewell_features], axis=1)
 
+    if include_extra_numeric:
+        extra_numeric = _extra_numeric_features(raw_horizontal, features.columns)
+        if not extra_numeric.empty:
+            features = pd.concat([features, extra_numeric], axis=1)
+
     return features.replace([np.inf, -np.inf], np.nan)
+
+
+def _extra_numeric_features(horizontal: pd.DataFrame, existing_columns: Iterable[str]) -> pd.DataFrame:
+    existing = set(existing_columns)
+    skip = set(CANONICAL_COLUMNS)
+    extras = pd.DataFrame(index=horizontal.index)
+    for column in horizontal.columns:
+        normalized = _normalize_name(column)
+        if normalized in skip or normalized in existing:
+            continue
+        values = pd.to_numeric(horizontal[column], errors="coerce")
+        if values.notna().any():
+            extras[f"raw_{normalized}"] = values
+    return extras
 
 
 def _typewell_projection_features(typewell: pd.DataFrame, tvt_prior: pd.Series | None) -> pd.DataFrame:
@@ -177,7 +201,10 @@ def _typewell_projection_features(typewell: pd.DataFrame, tvt_prior: pd.Series |
     return result
 
 
-def load_training_frame(pairs: Iterable[WellPair]) -> tuple[pd.DataFrame, pd.Series, pd.Series]:
+def load_training_frame(
+    pairs: Iterable[WellPair],
+    include_extra_numeric: bool = False,
+) -> tuple[pd.DataFrame, pd.Series, pd.Series]:
     rows: list[pd.DataFrame] = []
     targets: list[pd.Series] = []
     groups: list[pd.Series] = []
@@ -190,7 +217,11 @@ def load_training_frame(pairs: Iterable[WellPair]) -> tuple[pd.DataFrame, pd.Ser
         if "tvt" not in horizontal:
             continue
         typewell_raw = read_csv(pair.typewell_path)
-        feature_frame = build_horizontal_features(horizontal_raw, typewell_raw)
+        feature_frame = build_horizontal_features(
+            horizontal_raw,
+            typewell_raw,
+            include_extra_numeric=include_extra_numeric,
+        )
         mask = prediction_mask(horizontal, require_target=True)
         if not mask.any():
             continue
