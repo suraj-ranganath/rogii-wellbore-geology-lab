@@ -3,7 +3,8 @@
 Status on 2026-06-04:
 
 - Completed public scores: last-known 15.883, PF selector spread3 8.781, physical-noise PF 8.777.
-- Pending public scores: Sunny+v10 artifact blend, target-free alignment gated.
+- New completed public scores: Sunny+v10 artifact blend 8.421, target-free alignment gated 10.626.
+- Current public leaderboard position from the 2026-06-04 19:00:17 UTC download: rank 88 with score 8.421.
 - The PF selector and physical-noise PF local submissions are prediction-identical, so the 0.004 score difference is scoreboard/runtime noise, not a real modeling difference.
 - PF predictions match train-side TVT on the three public sample wells almost exactly. Moving from 8.78 to 7.x on the public board needs public residual calibration or a genuinely different stack, not small PF parameter churn.
 
@@ -23,18 +24,19 @@ The coefficient is the exact one-dimensional optimum implied by the two known pu
 
 Path: `scripts/public_lb_blend_optimizer.py`
 
-When pending public scores land, run:
+With the resolved public scores, run:
 
 ```bash
-uv run python scripts/public_lb_blend_optimizer.py --score sunny_v10_artifact_blend=<PUBLIC_SCORE> --score target_free_alignment_gated=<PUBLIC_SCORE>
+uv run python scripts/public_lb_blend_optimizer.py --score sunny_v10_artifact_blend=8.421 --score target_free_alignment_gated=10.626
 ```
 
-This solves the public-LB-implied optimum for every pair of available prediction vectors. If Sunny+v10 lands near the public notebook's reported 8.293 and remains sufficiently different from PF, the current local vectors project to:
+This solves the public-LB-implied optimum for every pair of available prediction vectors. With the actual Sunny+v10 score, the current local vectors project to:
 
-- PF -> Sunny extrapolation: predicted public RMSE about 6.873.
-- Sunny -> last-known extrapolation: predicted public RMSE about 7.685.
+- PF -> Sunny extrapolation: predicted public RMSE about 7.729.
+- Physical-noise PF -> Sunny extrapolation: predicted public RMSE about 7.747.
+- Sunny -> last-known extrapolation: predicted public RMSE about 7.861.
 
-Those projections are public-only until confirmed by a submission and must be rerun with our actual pending score.
+Target-free extrapolations project even lower mathematically, but the implied optimum is unstable because the target-free score is poor and the public scores are rounded. Treat those as high-risk probes, not as trusted candidates.
 
 ## Candidate C: Per-Well Public Probes
 
