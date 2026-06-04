@@ -1,0 +1,15 @@
+{
+  "id": "surajranganath17/rogii-physical-noise-pf",
+  "title": "ROGII Physical Noise PF",
+  "code_file": "physical_noise_pf.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "false",
+  "enable_tpu": "false",
+  "enable_internet": "false",
+  "dataset_sources": [],
+  "competition_sources": ["rogii-wellbore-geology-prediction"],
+  "kernel_sources": [],
+  "model_sources": []
+}
