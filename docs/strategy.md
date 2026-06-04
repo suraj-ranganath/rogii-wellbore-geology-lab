@@ -18,7 +18,7 @@ The competition is not a generic tabular regression problem. The task brief desc
 4. GR-to-GR correlation features between horizontal segments and typewell TVT windows.
 5. Spatial offset features from nearby training wells: distance, azimuth, local dip, residual transfer.
 
-The visible test files overlap three train wells with known target values. Treat any copy-from-train result as a public-slice diagnostic only, not as model quality. The default baseline also excludes train-only formation-top columns because visible test does not provide them.
+The visible test files overlap three train wells with known target values, but Kaggle/organizer discussion clarifies that these are fake/example test files that get replaced by the hidden scoring data. Treat copy-from-train as invalid for the championship. The default baseline also excludes train-only formation-top columns because hidden test does not provide them directly.
 
 Initial no-training benchmark over all 773 train wells: last-known TVT RMSE is 15.91, while naive linear TVT extrapolation is 113.63. A 30-well smoke CV with residual LightGBM scored 17.22, so the first real modeling target is to beat 15.91 under held-out-well validation before tuning.
 

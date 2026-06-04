@@ -37,3 +37,7 @@ The 3 visible test well IDs also appear in train:
 - `00e12e8b`
 
 For those wells, the shared visible test columns exactly match the corresponding train rows, and train `TVT` is available for every sample-submission row. This means a copy-from-train file could score perfectly on the visible/public slice, but it is not evidence of hidden-leaderboard generalization. We should track this separately from real model validation.
+
+Official discussion clarification: the visible `test/` files and visible `sample_submission.csv` are example data drawn from train to help author Code Competition notebooks. On scoring, Kaggle replaces those files with the actual hidden test set, described on the data page as about 200 wells. The actual hidden horizontal files expose `MD`, `X`, `Y`, `Z`, `GR`, and `TVT_input`; train-only formation columns and `TVT` are not directly available for hidden test rows.
+
+Implication: do not build a copy-from-train submission path. The championship path is a robust inference notebook that reads whatever hidden test files are mounted at submit time and predicts all hidden sample IDs.
