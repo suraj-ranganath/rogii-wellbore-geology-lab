@@ -94,6 +94,7 @@ CB_PARAMS=dict(
     depth=7,                 # was 8 — less overfitting
     l2_leaf_reg=2.0,         # was 3
     min_data_in_leaf=15,     # was 20
+    bootstrap_type="Bernoulli",
     subsample=0.75,
     border_count=254,        # GPU quality (max for T4)
     loss_function="RMSE",

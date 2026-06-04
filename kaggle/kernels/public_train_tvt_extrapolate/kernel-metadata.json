@@ -1,0 +1,17 @@
+{
+  "id": "surajranganath17/rogii-public-train-tvt-extrapolate",
+  "title": "ROGII Public Train TVT Extrapolate",
+  "code_file": "public_train_tvt_extrapolate.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": [],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "kernel_sources": [],
+  "model_sources": []
+}
