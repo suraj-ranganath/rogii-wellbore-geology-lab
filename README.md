@@ -46,11 +46,13 @@ uv run pytest
 uv run ruff check .
 uv run rogii inspect-data
 uv run rogii audit-data
+uv run rogii eval-priors
 ```
 
 Training commands exist, but should be launched only when we are ready for an experiment:
 
 ```bash
+uv run rogii cv-baseline --config configs/smoke.yaml --output outputs/smoke_cv.json
 uv run rogii train-baseline --config configs/default.yaml
 uv run rogii predict-submission --model models/baseline.joblib
 ```

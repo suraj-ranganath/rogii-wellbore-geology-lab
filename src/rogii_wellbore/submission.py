@@ -25,6 +25,7 @@ def make_model_submission(data_dir: Path, model_path: Path, output_path: Path) -
     artifact = joblib.load(model_path)
     model = artifact["model"]
     feature_names = artifact["feature_names"]
+    target_mode = artifact.get("target_mode", "absolute")
 
     predictions: dict[str, float] = {}
     pairs = [pair for pair in scan_wells(data_dir) if pair.split == "test"]
@@ -34,6 +35,8 @@ def make_model_submission(data_dir: Path, model_path: Path, output_path: Path) -
         features = build_horizontal_features(horizontal, typewell)
         numeric = features.select_dtypes(include=["number"]).reindex(columns=feature_names)
         pred = model.predict(numeric)
+        if target_mode == "residual_last_known":
+            pred = pred + numeric["last_known_tvt"].to_numpy(dtype=float)
         for row_idx, value in enumerate(pred):
             predictions[f"{pair.well_id}_{row_idx}"] = float(value)
 

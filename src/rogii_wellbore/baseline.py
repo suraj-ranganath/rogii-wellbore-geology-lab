@@ -38,22 +38,36 @@ def make_regressor(config: dict[str, Any]):
 
 
 def make_pipeline(config: dict[str, Any]) -> Pipeline:
-    return Pipeline(
+    pipeline = Pipeline(
         steps=[
             ("imputer", SimpleImputer(strategy="median")),
             ("model", make_regressor(config)),
         ]
     )
+    pipeline.set_output(transform="pandas")
+    return pipeline
+
+
+def target_mode(config: dict[str, Any]) -> str:
+    return str(config.get("baseline", {}).get("target", "absolute"))
 
 
 def select_numeric_features(frame: pd.DataFrame) -> pd.DataFrame:
     return frame.select_dtypes(include=[np.number]).copy()
 
 
-def cross_validate_baseline(config_path: Path) -> dict[str, Any]:
-    config = load_config(config_path)
+def select_train_pairs(config: dict[str, Any]):
     raw_dir = Path(config["paths"]["raw_dir"])
     pairs = [pair for pair in scan_wells(raw_dir) if pair.split in {"train", "unknown"}]
+    max_wells = config.get("data", {}).get("max_wells")
+    if max_wells:
+        pairs = pairs[: int(max_wells)]
+    return pairs
+
+
+def cross_validate_baseline(config_path: Path) -> dict[str, Any]:
+    config = load_config(config_path)
+    pairs = select_train_pairs(config)
     x_raw, y, groups = load_training_frame(
         pairs,
         include_extra_numeric=bool(config.get("features", {}).get("include_extra_numeric", False)),
@@ -69,8 +83,9 @@ def cross_validate_baseline(config_path: Path) -> dict[str, Any]:
     splitter = GroupKFold(n_splits=n_splits)
     for fold, (train_idx, valid_idx) in enumerate(splitter.split(x, y, groups), start=1):
         model = make_pipeline(config)
-        model.fit(x.iloc[train_idx], y.iloc[train_idx])
-        pred = model.predict(x.iloc[valid_idx])
+        y_train = training_target(y.iloc[train_idx], x.iloc[train_idx], config)
+        model.fit(x.iloc[train_idx], y_train)
+        pred = restore_prediction(model.predict(x.iloc[valid_idx]), x.iloc[valid_idx], config)
         score = rmse(y.iloc[valid_idx].to_numpy(), pred)
         oof.iloc[valid_idx] = pred
         fold_scores.append(
@@ -95,24 +110,24 @@ def cross_validate_baseline(config_path: Path) -> dict[str, Any]:
 
 def train_full_baseline(config_path: Path) -> tuple[Path, dict[str, Any]]:
     config = load_config(config_path)
-    raw_dir = Path(config["paths"]["raw_dir"])
     model_dir = Path(config["paths"]["model_dir"])
     output_dir = Path(config["paths"]["output_dir"])
     model_dir.mkdir(parents=True, exist_ok=True)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    pairs = [pair for pair in scan_wells(raw_dir) if pair.split in {"train", "unknown"}]
+    pairs = select_train_pairs(config)
     x_raw, y, _ = load_training_frame(
         pairs,
         include_extra_numeric=bool(config.get("features", {}).get("include_extra_numeric", False)),
     )
     x = select_numeric_features(x_raw)
     model = make_pipeline(config)
-    model.fit(x, y)
+    model.fit(x, training_target(y, x, config))
 
     artifact = {
         "model": model,
         "feature_names": list(x.columns),
+        "target_mode": target_mode(config),
         "config": config,
     }
     model_path = model_dir / "baseline.joblib"
@@ -127,3 +142,15 @@ def train_full_baseline(config_path: Path) -> tuple[Path, dict[str, Any]]:
     with (output_dir / "baseline_train_summary.json").open("w", encoding="utf-8") as handle:
         json.dump(summary, handle, indent=2)
     return model_path, summary
+
+
+def training_target(y: pd.Series, x: pd.DataFrame, config: dict[str, Any]) -> pd.Series:
+    if target_mode(config) == "residual_last_known":
+        return y - x["last_known_tvt"]
+    return y
+
+
+def restore_prediction(prediction: np.ndarray, x: pd.DataFrame, config: dict[str, Any]) -> np.ndarray:
+    if target_mode(config) == "residual_last_known":
+        return np.asarray(prediction, dtype=float) + x["last_known_tvt"].to_numpy(dtype=float)
+    return np.asarray(prediction, dtype=float)

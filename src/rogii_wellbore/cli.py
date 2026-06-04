@@ -19,6 +19,7 @@ from rogii_wellbore.data import (
 )
 from rogii_wellbore.features import canonicalize, prediction_mask
 from rogii_wellbore.paths import raw_competition_dir
+from rogii_wellbore.priors import evaluate_priors
 from rogii_wellbore.submission import make_model_submission
 
 app = typer.Typer(no_args_is_help=True)
@@ -28,6 +29,7 @@ DEFAULT_RAW_DIR = raw_competition_dir()
 DEFAULT_CONFIG = Path("configs/default.yaml")
 DEFAULT_CV_OUTPUT = Path("outputs/baseline_cv.json")
 DEFAULT_AUDIT_OUTPUT = Path("outputs/data_audit.json")
+DEFAULT_PRIOR_OUTPUT = Path("outputs/prior_baselines.json")
 DEFAULT_MODEL = Path("models/baseline.joblib")
 DEFAULT_SUBMISSION_OUTPUT = Path("submissions/baseline_submission.csv")
 
@@ -41,6 +43,7 @@ DATA_DIR_OPTION = typer.Option(DEFAULT_RAW_DIR, "--data-dir", "-d")
 CONFIG_OPTION = typer.Option(DEFAULT_CONFIG, "--config", "-c")
 CV_OUTPUT_OPTION = typer.Option(DEFAULT_CV_OUTPUT, "--output", "-o")
 AUDIT_OUTPUT_OPTION = typer.Option(DEFAULT_AUDIT_OUTPUT, "--output", "-o")
+PRIOR_OUTPUT_OPTION = typer.Option(DEFAULT_PRIOR_OUTPUT, "--output", "-o")
 MODEL_OPTION = typer.Option(DEFAULT_MODEL, "--model", "-m")
 SUBMISSION_OUTPUT_OPTION = typer.Option(DEFAULT_SUBMISSION_OUTPUT, "--output", "-o")
 FORCE_OPTION = typer.Option(False, "--force", help="Force Kaggle API redownload.")
@@ -143,6 +146,19 @@ def cv_baseline(
         json.dump(metrics, handle, indent=2)
     console.print_json(json.dumps(metrics))
     console.print(f"Wrote CV metrics to [bold]{output}[/bold]")
+
+
+@app.command("eval-priors")
+def eval_priors(
+    data_dir: Path = DATA_DIR_OPTION,
+    output: Path = PRIOR_OUTPUT_OPTION,
+) -> None:
+    metrics = evaluate_priors(data_dir)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w", encoding="utf-8") as handle:
+        json.dump(metrics, handle, indent=2)
+    console.print_json(json.dumps(metrics))
+    console.print(f"Wrote prior metrics to [bold]{output}[/bold]")
 
 
 @app.command("train-baseline")

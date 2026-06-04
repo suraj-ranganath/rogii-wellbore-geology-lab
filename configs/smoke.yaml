@@ -9,10 +9,10 @@ paths:
   submission_dir: submissions
 
 data:
-  max_wells:
+  max_wells: 30
 
 validation:
-  n_splits: 5
+  n_splits: 3
   random_state: 204
 
 features:
@@ -23,14 +23,14 @@ baseline:
   target: residual_last_known
   prediction_mask: tvt_input_missing_with_target
   lgbm:
-    n_estimators: 800
-    learning_rate: 0.03
-    num_leaves: 63
+    n_estimators: 100
+    learning_rate: 0.05
+    num_leaves: 31
     subsample: 0.9
     colsample_bytree: 0.85
     reg_alpha: 0.0
     reg_lambda: 5.0
-    min_child_samples: 20
+    min_child_samples: 30
     verbosity: -1
     force_row_wise: true
     random_state: 204
