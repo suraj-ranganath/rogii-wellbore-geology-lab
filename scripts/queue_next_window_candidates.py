@@ -35,7 +35,7 @@ CANDIDATES = [
     Candidate(
         name="super_solution_top3_fixed",
         kernel="surajranganath17/rogii-super-solution-top3",
-        version=2,
+        version=3,
         message="super solution top3 fixed catboost bootstrap",
         kernel_dir=Path("kaggle/kernels/super_solution_top3"),
         output_dir=Path("outputs/next_window/super_solution_top3_fixed"),

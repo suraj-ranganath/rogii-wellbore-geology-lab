@@ -24,6 +24,7 @@ All commands use `uv` from the project root. Generated JSON artifacts stay under
 | Public well-shift probes | `uv run python scripts/public_lb_probe_tool.py make --base-score 8.781 --shift 10` | local probe generation | not submitted | Writes one plus-shift probe per public well so tomorrow's public submissions can infer mean per-well residuals and build a corrected public-only candidate. |
 | Next-window 5-candidate queue | `uv run python scripts/queue_next_window_candidates.py --timeout-minutes 720 --poll-seconds 180` | queued Kaggle code submissions | pending | Pushes fixed super-solution v2 plus four public-calibrated candidate kernels, waits for the 2026-06-05 00:00 UTC reset, then submits up to five completed candidates. |
 | Static public-kernel v2 fix | `uv run python scripts/materialize_public_static_kernels.py && uv run kaggle kernels push -p <static_kernel_dir>` | queued Kaggle code submissions | not submitted | Static public candidates now embed their compressed CSV payload directly in the code file because Kaggle did not stage adjacent payload files for script kernels. Static v2 outputs were downloaded from Kaggle and verified to exactly match the intended local blend CSVs. |
+| Super-solution top3 v3 | `uv run kaggle kernels push -p kaggle/kernels/super_solution_top3 -t 32400 --accelerator gpu` | queued Kaggle GPU kernel | pending | Version 2 fixed CatBoost bootstrap but failed when Kaggle assigned a single P100 and CatBoost rejected `devices="0:1"` because GPU id 1 did not exist. Version 3 uses `devices="0"`. |
 
 Interpretation:
 
