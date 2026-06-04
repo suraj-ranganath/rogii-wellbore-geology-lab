@@ -6,6 +6,7 @@ from collections.abc import Iterable
 import numpy as np
 import pandas as pd
 
+from rogii_wellbore.alignment import prefix_ncc_features, typewell_beam_features
 from rogii_wellbore.data import WellPair, read_csv
 
 CANONICAL_COLUMNS = {
@@ -92,6 +93,8 @@ def build_horizontal_features(
     horizontal: pd.DataFrame,
     typewell: pd.DataFrame | None = None,
     include_extra_numeric: bool = False,
+    include_prefix_ncc: bool = False,
+    include_typewell_beam: bool = False,
 ) -> pd.DataFrame:
     raw_horizontal = horizontal.copy()
     horizontal = canonicalize(horizontal, required=("md",))
@@ -155,9 +158,25 @@ def build_horizontal_features(
         features["last_known_tvt_slope"] = slope
         features["linear_tvt_prior"] = last_tvt + slope * (md - ps_md)
 
+        if include_prefix_ncc and "gr" in horizontal:
+            ncc_features = prefix_ncc_features(
+                gr=pd.to_numeric(horizontal["gr"], errors="coerce"),
+                tvt_input=tvt_input,
+            )
+            features = pd.concat([features, ncc_features], axis=1)
+
     if typewell is not None:
         typewell_features = _typewell_projection_features(typewell, features.get("linear_tvt_prior"))
         features = pd.concat([features, typewell_features], axis=1)
+        if include_typewell_beam and {"gr", "tvt_input"}.issubset(horizontal.columns):
+            typewell_canonical = canonicalize(typewell, required=("tvt", "gr"))
+            beam_features = typewell_beam_features(
+                gr=pd.to_numeric(horizontal["gr"], errors="coerce"),
+                tvt_input=pd.to_numeric(horizontal["tvt_input"], errors="coerce"),
+                typewell_tvt=pd.to_numeric(typewell_canonical["tvt"], errors="coerce"),
+                typewell_gr=pd.to_numeric(typewell_canonical["gr"], errors="coerce"),
+            )
+            features = pd.concat([features, beam_features], axis=1)
 
     if include_extra_numeric:
         extra_numeric = _extra_numeric_features(raw_horizontal, features.columns)
@@ -204,6 +223,8 @@ def _typewell_projection_features(typewell: pd.DataFrame, tvt_prior: pd.Series |
 def load_training_frame(
     pairs: Iterable[WellPair],
     include_extra_numeric: bool = False,
+    include_prefix_ncc: bool = False,
+    include_typewell_beam: bool = False,
 ) -> tuple[pd.DataFrame, pd.Series, pd.Series]:
     rows: list[pd.DataFrame] = []
     targets: list[pd.Series] = []
@@ -221,6 +242,8 @@ def load_training_frame(
             horizontal_raw,
             typewell_raw,
             include_extra_numeric=include_extra_numeric,
+            include_prefix_ncc=include_prefix_ncc,
+            include_typewell_beam=include_typewell_beam,
         )
         mask = prediction_mask(horizontal, require_target=True)
         if not mask.any():

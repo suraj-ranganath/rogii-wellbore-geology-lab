@@ -17,6 +17,8 @@ validation:
 
 features:
   include_extra_numeric: false
+  include_prefix_ncc: true
+  include_typewell_beam: true
 
 baseline:
   model: lightgbm

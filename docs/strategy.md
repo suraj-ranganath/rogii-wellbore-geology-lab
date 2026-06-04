@@ -9,6 +9,7 @@ The competition is not a generic tabular regression problem. The task brief desc
 - Validate by held-out horizontal well, never random row splits.
 - Track experiment config, code revision, CV score, and local artifact path for every run.
 - No Kaggle submission until the local validation harness is trusted.
+- Kaggle submissions are capped at 5/day, with at most 2 final submissions selected; every candidate must fit the notebook-only, no-internet, <=9-hour runtime contract.
 
 ## Phase 1: Baseline Ladder
 
@@ -25,7 +26,9 @@ Initial no-training benchmark over all 773 train wells: last-known TVT RMSE is 1
 ## Phase 2: Serious Models
 
 - LightGBM/CatBoost/XGBoost ensembles with GroupKFold by well.
-- Dynamic time warping or constrained sequence alignment against typewell GR.
+- Prefix GR normalized cross-correlation features from known `TVT_input` rows into the hidden tail.
+- Deterministic typewell GR beam paths as weak TVT estimators and disagreement features.
+- Constrained stochastic alignment against typewell GR via particle filters.
 - State-space or sequence model over `MD` with known-prefix conditioning.
 - Residual model on top of geology-aware deterministic alignment.
 - Per-area or per-typewell specialization if validation shows heterogeneous fields.

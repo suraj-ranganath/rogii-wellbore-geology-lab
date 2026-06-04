@@ -71,6 +71,8 @@ def cross_validate_baseline(config_path: Path) -> dict[str, Any]:
     x_raw, y, groups = load_training_frame(
         pairs,
         include_extra_numeric=bool(config.get("features", {}).get("include_extra_numeric", False)),
+        include_prefix_ncc=bool(config.get("features", {}).get("include_prefix_ncc", False)),
+        include_typewell_beam=bool(config.get("features", {}).get("include_typewell_beam", False)),
     )
     x = select_numeric_features(x_raw)
 
@@ -119,6 +121,8 @@ def train_full_baseline(config_path: Path) -> tuple[Path, dict[str, Any]]:
     x_raw, y, _ = load_training_frame(
         pairs,
         include_extra_numeric=bool(config.get("features", {}).get("include_extra_numeric", False)),
+        include_prefix_ncc=bool(config.get("features", {}).get("include_prefix_ncc", False)),
+        include_typewell_beam=bool(config.get("features", {}).get("include_typewell_beam", False)),
     )
     x = select_numeric_features(x_raw)
     model = make_pipeline(config)

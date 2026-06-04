@@ -18,6 +18,7 @@ from rogii_wellbore.data import (
     summarize_columns,
 )
 from rogii_wellbore.features import canonicalize, prediction_mask
+from rogii_wellbore.formation import evaluate_dense_formation_priors, evaluate_formation_priors
 from rogii_wellbore.paths import raw_competition_dir
 from rogii_wellbore.priors import evaluate_priors
 from rogii_wellbore.submission import make_model_submission
@@ -29,6 +30,8 @@ DEFAULT_RAW_DIR = raw_competition_dir()
 DEFAULT_CONFIG = Path("configs/default.yaml")
 DEFAULT_CV_OUTPUT = Path("outputs/baseline_cv.json")
 DEFAULT_AUDIT_OUTPUT = Path("outputs/data_audit.json")
+DEFAULT_FORMATION_OUTPUT = Path("outputs/formation_priors.json")
+DEFAULT_DENSE_FORMATION_OUTPUT = Path("outputs/dense_formation_priors.json")
 DEFAULT_PRIOR_OUTPUT = Path("outputs/prior_baselines.json")
 DEFAULT_MODEL = Path("models/baseline.joblib")
 DEFAULT_SUBMISSION_OUTPUT = Path("submissions/baseline_submission.csv")
@@ -43,6 +46,8 @@ DATA_DIR_OPTION = typer.Option(DEFAULT_RAW_DIR, "--data-dir", "-d")
 CONFIG_OPTION = typer.Option(DEFAULT_CONFIG, "--config", "-c")
 CV_OUTPUT_OPTION = typer.Option(DEFAULT_CV_OUTPUT, "--output", "-o")
 AUDIT_OUTPUT_OPTION = typer.Option(DEFAULT_AUDIT_OUTPUT, "--output", "-o")
+FORMATION_OUTPUT_OPTION = typer.Option(DEFAULT_FORMATION_OUTPUT, "--output", "-o")
+DENSE_FORMATION_OUTPUT_OPTION = typer.Option(DEFAULT_DENSE_FORMATION_OUTPUT, "--output", "-o")
 PRIOR_OUTPUT_OPTION = typer.Option(DEFAULT_PRIOR_OUTPUT, "--output", "-o")
 MODEL_OPTION = typer.Option(DEFAULT_MODEL, "--model", "-m")
 SUBMISSION_OUTPUT_OPTION = typer.Option(DEFAULT_SUBMISSION_OUTPUT, "--output", "-o")
@@ -159,6 +164,42 @@ def eval_priors(
         json.dump(metrics, handle, indent=2)
     console.print_json(json.dumps(metrics))
     console.print(f"Wrote prior metrics to [bold]{output}[/bold]")
+
+
+@app.command("eval-formation-priors")
+def eval_formation_priors(
+    data_dir: Path = DATA_DIR_OPTION,
+    output: Path = FORMATION_OUTPUT_OPTION,
+) -> None:
+    metrics = evaluate_formation_priors(data_dir)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w", encoding="utf-8") as handle:
+        json.dump(metrics, handle, indent=2)
+    console.print_json(json.dumps(metrics))
+    console.print(f"Wrote formation-prior metrics to [bold]{output}[/bold]")
+
+
+@app.command("eval-dense-formation-priors")
+def eval_dense_formation_priors(
+    data_dir: Path = DATA_DIR_OPTION,
+    output: Path = DENSE_FORMATION_OUTPUT_OPTION,
+    k: int = typer.Option(40, "--k", min=1),
+    formation: str = typer.Option("ANCC", "--formation"),
+    samples_per_well: int = typer.Option(80, "--samples-per-well", min=5),
+    max_wells: int | None = typer.Option(None, "--max-wells", min=1),
+) -> None:
+    metrics = evaluate_dense_formation_priors(
+        data_dir,
+        k_values=[k],
+        formation_names=[formation],
+        samples_per_well=samples_per_well,
+        max_wells=max_wells,
+    )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w", encoding="utf-8") as handle:
+        json.dump(metrics, handle, indent=2)
+    console.print_json(json.dumps(metrics))
+    console.print(f"Wrote dense formation-prior metrics to [bold]{output}[/bold]")
 
 
 @app.command("train-baseline")

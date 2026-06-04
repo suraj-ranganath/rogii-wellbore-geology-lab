@@ -26,13 +26,20 @@ def make_model_submission(data_dir: Path, model_path: Path, output_path: Path) -
     model = artifact["model"]
     feature_names = artifact["feature_names"]
     target_mode = artifact.get("target_mode", "absolute")
+    feature_config = artifact.get("config", {}).get("features", {})
 
     predictions: dict[str, float] = {}
     pairs = [pair for pair in scan_wells(data_dir) if pair.split == "test"]
     for pair in pairs:
         horizontal = read_csv(pair.horizontal_path)
         typewell = read_csv(pair.typewell_path) if pair.typewell_path is not None else None
-        features = build_horizontal_features(horizontal, typewell)
+        features = build_horizontal_features(
+            horizontal,
+            typewell,
+            include_extra_numeric=bool(feature_config.get("include_extra_numeric", False)),
+            include_prefix_ncc=bool(feature_config.get("include_prefix_ncc", False)),
+            include_typewell_beam=bool(feature_config.get("include_typewell_beam", False)),
+        )
         numeric = features.select_dtypes(include=["number"]).reindex(columns=feature_names)
         pred = model.predict(numeric)
         if target_mode == "residual_last_known":

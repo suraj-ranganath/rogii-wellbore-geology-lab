@@ -47,7 +47,12 @@ uv run ruff check .
 uv run rogii inspect-data
 uv run rogii audit-data
 uv run rogii eval-priors
+uv run rogii eval-formation-priors
+uv run rogii eval-dense-formation-priors
 ```
+
+Current competition constraints are tracked in `docs/competition_constraints.md`.
+Fast experiment results are tracked in `docs/experiment_log.md`.
 
 Training commands exist, but should be launched only when we are ready for an experiment:
 
