@@ -35,7 +35,7 @@ CANDIDATES = [
     Candidate(
         name="ravaghi_ridge_w020",
         kernel="surajranganath17/rogii-ridgecpu-w020-0605",
-        version=1,
+        version=2,
         message="ravaghi ridge dynamic blend w020",
         kernel_dir=Path("kaggle/kernels/ravaghi_ridge_w020"),
         output_dir=Path("outputs/queue_20260605/ravaghi_ridge_w020"),
@@ -43,7 +43,7 @@ CANDIDATES = [
     Candidate(
         name="ravaghi_ridge_w025",
         kernel="surajranganath17/rogii-ridgecpu-w025-0605",
-        version=1,
+        version=2,
         message="ravaghi ridge dynamic blend w025",
         kernel_dir=Path("kaggle/kernels/ravaghi_ridge_w025"),
         output_dir=Path("outputs/queue_20260605/ravaghi_ridge_w025"),
@@ -51,7 +51,7 @@ CANDIDATES = [
     Candidate(
         name="ravaghi_ridge_w030",
         kernel="surajranganath17/rogii-ridgecpu-w030-0605",
-        version=1,
+        version=2,
         message="ravaghi ridge dynamic blend w030",
         kernel_dir=Path("kaggle/kernels/ravaghi_ridge_w030"),
         output_dir=Path("outputs/queue_20260605/ravaghi_ridge_w030"),
@@ -59,7 +59,7 @@ CANDIDATES = [
     Candidate(
         name="ravaghi_ridge_w035",
         kernel="surajranganath17/rogii-ridgecpu-w035-0605",
-        version=1,
+        version=2,
         message="ravaghi ridge dynamic blend w035",
         kernel_dir=Path("kaggle/kernels/ravaghi_ridge_w035"),
         output_dir=Path("outputs/queue_20260605/ravaghi_ridge_w035"),
@@ -67,7 +67,7 @@ CANDIDATES = [
     Candidate(
         name="ravaghi_ridge_w040",
         kernel="surajranganath17/rogii-ridgecpu-w040-0605",
-        version=1,
+        version=2,
         message="ravaghi ridge dynamic blend w040",
         kernel_dir=Path("kaggle/kernels/ravaghi_ridge_w040"),
         output_dir=Path("outputs/queue_20260605/ravaghi_ridge_w040"),

@@ -27,7 +27,139 @@ from catboost import CatBoostRegressor
 from scipy.spatial import cKDTree
 from scipy.signal import savgol_filter
 from joblib import Parallel, delayed
-from koolbox import Trainer
+try:
+    from koolbox import Trainer
+except ModuleNotFoundError:
+    import gc as _gc
+    import os as _os2
+    import time as _time
+    import types as _types
+    from datetime import datetime as _datetime
+
+    import joblib as _joblib
+    import numpy as _np
+    from sklearn.base import clone as _clone
+
+    class Trainer:
+        def __init__(
+            self,
+            estimator,
+            cv,
+            metric,
+            task,
+            metric_threshold=0.5,
+            metric_precision=4,
+            metric_args=None,
+            use_early_stopping=False,
+            cv_args=None,
+            verbose=True,
+            save_path="./logs",
+            save=False,
+        ):
+            self.estimator = estimator
+            self.cv = cv
+            self.metric = metric
+            self.task = task
+            self.metric_threshold = metric_threshold
+            self.metric_precision = metric_precision
+            self.metric_args = metric_args or {}
+            self.cv_args = cv_args or {}
+            self.use_early_stopping = use_early_stopping
+            self.verbose = verbose
+            self.save_path = save_path
+            self.save = save
+            self.y_min = None
+            self.y_max = None
+            self.estimator_name = self.estimator.__class__.__name__
+            self.metric_name = self.metric.__name__
+            self.overall_score = None
+            self.fold_scores = None
+            self.is_fitted = False
+            self.estimators = []
+            self.oof_preds = None
+
+        def _save_results(self):
+            if not self.save:
+                return
+            _os2.makedirs(self.save_path, exist_ok=True)
+            stamp = _datetime.now().strftime("%Y%m%d%H%M%S")
+            path = f"{self.save_path}/{self.estimator_name.lower()}_trainer_{stamp}.pkl"
+            _joblib.dump(self, path)
+
+        def _get_y_preds(self, estimator, X):
+            if self.task == "regression":
+                return estimator.predict(X).clip(self.y_min, self.y_max)
+            return estimator.predict_proba(X)[:, 1]
+
+        def _calculate_metric(self, y_true, y_pred):
+            return self.metric(y_true, y_pred, **self.metric_args)
+
+        def fit(self, X, y, extra_X=None, extra_y=None, fit_args=None):
+            fit_args = dict(fit_args or {})
+            self.y_min = y.min()
+            self.y_max = y.max()
+            if self.verbose:
+                print(f"Training {self.estimator_name}\n")
+            fold_scores = []
+            oof_preds = _np.zeros(X.shape[0])
+            start_time = _time.time()
+            split = self.cv.split(X, y, **self.cv_args)
+            for fold_idx, (train_idx, val_idx) in enumerate(split):
+                fold_start_time = _time.time()
+                X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
+                y_train = y.iloc[train_idx] if hasattr(y, "iloc") else y[train_idx]
+                y_val = y.iloc[val_idx] if hasattr(y, "iloc") else y[val_idx]
+                if extra_X is not None and extra_y is not None:
+                    X_train = pd.concat([X_train, extra_X])
+                    y_train = pd.concat([y_train, extra_y])
+                fold_fit_args = dict(fit_args)
+                if self.use_early_stopping:
+                    fold_fit_args["eval_set"] = [(X_val, y_val)]
+                estimator = _clone(self.estimator)
+                estimator.fit(X_train, y_train, **fold_fit_args)
+                self.estimators.append(estimator)
+                y_preds = self._get_y_preds(estimator, X_val)
+                oof_preds[val_idx] = y_preds
+                fold_score = self._calculate_metric(y_val, y_preds)
+                fold_scores.append(fold_score)
+                if self.verbose:
+                    elapsed = _time.time() - fold_start_time
+                    print(f"--- Fold {fold_idx} - {self.metric_name}: {fold_score:.{self.metric_precision}f} - Time: {elapsed:.2f} s")
+                del X_train, y_train, X_val, y_val, y_preds
+                _gc.collect()
+            overall_score = self._calculate_metric(y, oof_preds)
+            mean_score = _np.mean(fold_scores)
+            std_score = _np.std(fold_scores)
+            self.overall_score = overall_score
+            self.fold_scores = fold_scores
+            self.oof_preds = oof_preds
+            self.is_fitted = True
+            self._save_results()
+            if self.verbose:
+                elapsed = _time.time() - start_time
+                print(f"\n------ Overall {self.metric_name}: {overall_score:.{self.metric_precision}f} - Mean {self.metric_name}: {mean_score:.{self.metric_precision}f} +/- {std_score:.{self.metric_precision}f} - Time: {elapsed:.2f} s")
+
+        def predict(self, X_test):
+            if not self.is_fitted:
+                raise ValueError("Trainer must be fitted before prediction")
+            test_preds = _np.zeros(X_test.shape[0])
+            for estimator in self.estimators:
+                test_preds += self._get_y_preds(estimator, X_test)
+            return test_preds / len(self.estimators)
+
+    Trainer.__module__ = "koolbox.trainer.trainer"
+    _trainer_mod = _types.ModuleType("koolbox.trainer.trainer")
+    _trainer_mod.Trainer = Trainer
+    _trainer_pkg = _types.ModuleType("koolbox.trainer")
+    _trainer_pkg.Trainer = Trainer
+    _trainer_pkg.trainer = _trainer_mod
+    _koolbox_mod = _types.ModuleType("koolbox")
+    _koolbox_mod.Trainer = Trainer
+    _koolbox_mod.trainer = _trainer_pkg
+    _sys.modules["koolbox"] = _koolbox_mod
+    _sys.modules["koolbox.trainer"] = _trainer_pkg
+    _sys.modules["koolbox.trainer.trainer"] = _trainer_mod
+    from koolbox import Trainer
 from pathlib import Path
 from numba import njit
 import matplotlib.pyplot as plt
