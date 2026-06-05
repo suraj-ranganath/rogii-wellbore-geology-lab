@@ -1,10 +1,10 @@
 {
-  "id": "surajranganath17/rogii-ravaghi-ridge-w025",
-  "title": "ROGII Ravaghi Ridge W025",
-  "code_file": "wellbore-geology-prediction-ridge.ipynb",
+  "id": "surajranganath17/rogii-ridgeblend-w025",
+  "title": "ROGII RidgeBlend W025",
+  "code_file": "ravaghi_ridge_w025.py",
   "language": "python",
-  "kernel_type": "notebook",
-  "is_private": false,
+  "kernel_type": "script",
+  "is_private": true,
   "enable_gpu": true,
   "enable_tpu": false,
   "enable_internet": false,
@@ -24,6 +24,5 @@
   "competition_sources": [
     "rogii-wellbore-geology-prediction"
   ],
-  "model_sources": [],
-  "machine_shape": "Gpu"
+  "model_sources": []
 }
