@@ -33,44 +33,44 @@ class Candidate:
 
 CANDIDATES = [
     Candidate(
-        name="aiden_pf_plateauavg",
-        kernel="surajranganath17/rogii-aiden-pf-plateauavg",
+        name="ravaghi_ridge_w020",
+        kernel="surajranganath17/rogii-ravaghi-ridge-w020",
         version=1,
-        message="aiden pf plateauavg dynamic scale cluster",
-        kernel_dir=Path("kaggle/kernels/aiden_pf_plateauavg"),
-        output_dir=Path("outputs/queue_20260605/aiden_pf_plateauavg"),
+        message="ravaghi ridge dynamic blend w020",
+        kernel_dir=Path("kaggle/kernels/ravaghi_ridge_w020"),
+        output_dir=Path("outputs/queue_20260605/ravaghi_ridge_w020"),
     ),
     Candidate(
-        name="formation_datum_dynamic",
-        kernel="surajranganath17/rogii-formation-datum-dynamic",
+        name="ravaghi_ridge_w025",
+        kernel="surajranganath17/rogii-ravaghi-ridge-w025",
         version=1,
-        message="formation datum dynamic ancc invariant",
-        kernel_dir=Path("kaggle/kernels/formation_datum_dynamic"),
-        output_dir=Path("outputs/queue_20260605/formation_datum_dynamic"),
+        message="ravaghi ridge dynamic blend w025",
+        kernel_dir=Path("kaggle/kernels/ravaghi_ridge_w025"),
+        output_dir=Path("outputs/queue_20260605/ravaghi_ridge_w025"),
     ),
     Candidate(
-        name="public_blend_v2_fixed",
-        kernel="surajranganath17/rogii-public-blend-v2-fixed",
-        version=2,
-        message="public blend v2 fixed dynamic 60 40",
-        kernel_dir=Path("kaggle/kernels/public_blend_v2_fixed"),
-        output_dir=Path("outputs/queue_20260605/public_blend_v2_fixed"),
-    ),
-    Candidate(
-        name="formation_datum_sigma20000",
-        kernel="surajranganath17/rogii-formation-datum-sigma20000",
+        name="ravaghi_ridge_w030",
+        kernel="surajranganath17/rogii-ravaghi-ridge-w030",
         version=1,
-        message="formation datum dynamic sigma 20000",
-        kernel_dir=Path("kaggle/kernels/formation_datum_sigma20000"),
-        output_dir=Path("outputs/queue_20260605/formation_datum_sigma20000"),
+        message="ravaghi ridge dynamic blend w030",
+        kernel_dir=Path("kaggle/kernels/ravaghi_ridge_w030"),
+        output_dir=Path("outputs/queue_20260605/ravaghi_ridge_w030"),
     ),
     Candidate(
-        name="sunny_v10_w070",
-        kernel="surajranganath17/rogii-sunny-v10-weight070",
-        version=2,
-        message="sunny v10 dynamic weight 070",
-        kernel_dir=Path("kaggle/kernels/sunny_v10_w070"),
-        output_dir=Path("outputs/queue_20260605/sunny_v10_w070"),
+        name="ravaghi_ridge_w035",
+        kernel="surajranganath17/rogii-ravaghi-ridge-w035",
+        version=1,
+        message="ravaghi ridge dynamic blend w035",
+        kernel_dir=Path("kaggle/kernels/ravaghi_ridge_w035"),
+        output_dir=Path("outputs/queue_20260605/ravaghi_ridge_w035"),
+    ),
+    Candidate(
+        name="ravaghi_ridge_w040",
+        kernel="surajranganath17/rogii-ravaghi-ridge-w040",
+        version=1,
+        message="ravaghi ridge dynamic blend w040",
+        kernel_dir=Path("kaggle/kernels/ravaghi_ridge_w040"),
+        output_dir=Path("outputs/queue_20260605/ravaghi_ridge_w040"),
     ),
 ]
 
@@ -182,6 +182,10 @@ def validate_submission(path: Path) -> None:
     values = sub["tvt"].astype(float)
     if sub["tvt"].isna().any() or not values.map(math.isfinite).all():
         raise ValueError(f"{path}: non-finite tvt predictions")
+    if values.max() - values.min() < 50:
+        raise ValueError(f"{path}: suspiciously narrow tvt range")
+    if values.median() < 8000 or values.median() > 14000:
+        raise ValueError(f"{path}: suspicious tvt median {values.median():.4f}")
     print(
         f"validated {path}: rows={len(sub)} range=({values.min():.4f}, {values.max():.4f})",
         flush=True,

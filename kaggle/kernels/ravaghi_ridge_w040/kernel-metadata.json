@@ -1,0 +1,29 @@
+{
+  "id": "surajranganath17/rogii-ravaghi-ridge-w040",
+  "title": "ROGII Ravaghi Ridge W040",
+  "code_file": "wellbore-geology-prediction-ridge.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [
+    "regression",
+    "tabular",
+    "geology",
+    "ensembling",
+    "gradient boosting"
+  ],
+  "dataset_sources": [
+    "ravaghi/wellbore-geology-prediction-artifacts"
+  ],
+  "kernel_sources": [
+    "packagemanager/pm-121679840-at-06-05-2026-06-37-18"
+  ],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "model_sources": [],
+  "machine_shape": "Gpu"
+}
