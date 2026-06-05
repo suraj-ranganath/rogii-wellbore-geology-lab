@@ -36,7 +36,7 @@ This solves the public-LB-implied optimum for every pair of available prediction
 - Physical-noise PF -> Sunny extrapolation: predicted public RMSE about 7.747.
 - Sunny -> last-known extrapolation: predicted public RMSE about 7.861.
 
-Target-free extrapolations project even lower mathematically, but the implied optimum is unstable because the target-free score is poor and the public scores are rounded. Treat those as high-risk probes, not as trusted candidates.
+Target-free extrapolations project even lower mathematically, but the implied optimum is unstable because the target-free score is poor and the public scores are rounded. Treat those as high-risk probes, not as trusted candidates. Static embedded-public CSV kernels are not valid submissions for this code competition because Kaggle reruns submitted notebooks against a different hidden dataset.
 
 ## Candidate C: Per-Well Public Probes
 
