@@ -19,5 +19,6 @@
   "competition_sources": [
     "rogii-wellbore-geology-prediction"
   ],
-  "model_sources": []
+  "model_sources": [],
+  "machine_shape": "NvidiaTeslaT4"
 }

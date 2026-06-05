@@ -51,7 +51,7 @@ CANDIDATES = [
     Candidate(
         name="public_blend_v2_fixed",
         kernel="surajranganath17/rogii-public-blend-v2-fixed",
-        version=1,
+        version=2,
         message="public blend v2 fixed dynamic 60 40",
         kernel_dir=Path("kaggle/kernels/public_blend_v2_fixed"),
         output_dir=Path("outputs/queue_20260605/public_blend_v2_fixed"),
@@ -67,7 +67,7 @@ CANDIDATES = [
     Candidate(
         name="sunny_v10_w070",
         kernel="surajranganath17/rogii-sunny-v10-weight070",
-        version=1,
+        version=2,
         message="sunny v10 dynamic weight 070",
         kernel_dir=Path("kaggle/kernels/sunny_v10_w070"),
         output_dir=Path("outputs/queue_20260605/sunny_v10_w070"),

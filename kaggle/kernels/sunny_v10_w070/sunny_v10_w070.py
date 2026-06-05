@@ -718,20 +718,26 @@ def main() -> None:
         script_path=sunny_script,
         output_dir=WORKING_DIR / "component_sunny_physical_pf",
     )
-    v10_csv = run_component(
-        name="v10_artifact_stack",
-        script_path=v10_script,
-        output_dir=WORKING_DIR / "component_v10_artifact_stack",
-        extra_env={
-            "ROGII_INFERENCE_ONLY": "1",
-            "ROGII_SAVE_ARTIFACTS": "0",
-            "ROGII_RUN_TABICL": "1",
-            "ROGII_OUTPUT_DIR": str(WORKING_DIR / "component_v10_artifact_stack"),
-        },
-    )
-
     sunny = read_submission(sunny_csv, sample["id"], "sunny_physical_pf")
-    v10 = read_submission(v10_csv, sample["id"], "v10_artifact_stack")
+    try:
+        v10_csv = run_component(
+            name="v10_artifact_stack",
+            script_path=v10_script,
+            output_dir=WORKING_DIR / "component_v10_artifact_stack",
+            extra_env={
+                "ROGII_INFERENCE_ONLY": "1",
+                "ROGII_SAVE_ARTIFACTS": "0",
+                "ROGII_RUN_TABICL": "1",
+                "ROGII_OUTPUT_DIR": str(WORKING_DIR / "component_v10_artifact_stack"),
+            },
+        )
+        v10 = read_submission(v10_csv, sample["id"], "v10_artifact_stack")
+        v10_status = "ok"
+    except Exception as exc:
+        print(f"v10_artifact_stack failed; falling back to sunny only: {exc}", flush=True)
+        v10_csv = sunny_csv
+        v10 = sunny.copy()
+        v10_status = f"fallback_sunny_only: {type(exc).__name__}"
 
     submission = sample.copy()
     submission["tvt"] = SUNNY_WEIGHT * sunny["tvt"] + (1.0 - SUNNY_WEIGHT) * v10["tvt"]
@@ -754,6 +760,7 @@ def main() -> None:
         "diagnostic_path": str(diagnostic_path),
         "sunny_path": str(sunny_csv),
         "v10_path": str(v10_csv),
+        "v10_status": v10_status,
         "component_abs_diff_mean": float(diff.mean()),
         "component_abs_diff_p95": float(diff.quantile(0.95)),
         "component_abs_diff_max": float(diff.max()),
