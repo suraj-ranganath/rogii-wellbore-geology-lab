@@ -1,3 +1,17 @@
+# Local wheel install for dependencies that Ravaghi's notebook loaded from a package-manager kernel source.
+import os as _os
+import subprocess as _subprocess
+import sys as _sys
+
+_WHEEL_DIR = _os.path.dirname(_os.path.abspath(__file__)) if "__file__" in globals() else _os.getcwd()
+for _wheel in (
+    "scikit_learn-1.7.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+    "koolbox-0.1.3-py3-none-any.whl",
+):
+    _path = _os.path.join(_WHEEL_DIR, _wheel)
+    if _os.path.exists(_path):
+        _subprocess.check_call([_sys.executable, "-m", "pip", "install", "--no-index", "--no-deps", _path])
+
 # Generated from wellbore-geology-prediction-ridge.ipynb for reliable Kaggle CLI pushes.
 
 # %%

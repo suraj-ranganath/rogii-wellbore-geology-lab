@@ -5,22 +5,18 @@
   "language": "python",
   "kernel_type": "script",
   "is_private": true,
-  "enable_gpu": true,
+  "enable_gpu": false,
   "enable_tpu": false,
   "enable_internet": false,
   "keywords": [
     "regression",
-    "tabular",
     "geology",
-    "ensembling",
-    "gradient boosting"
+    "ensembling"
   ],
   "dataset_sources": [
     "ravaghi/wellbore-geology-prediction-artifacts"
   ],
-  "kernel_sources": [
-    "packagemanager/pm-121679840-at-06-05-2026-06-37-18"
-  ],
+  "kernel_sources": [],
   "competition_sources": [
     "rogii-wellbore-geology-prediction"
   ],
