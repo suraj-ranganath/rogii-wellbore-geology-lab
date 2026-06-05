@@ -251,7 +251,13 @@ def monitor(timeout_minutes: int, poll_seconds: int) -> None:
                 continue
             push_candidate(candidate, state)
 
-        submission_table = submissions_text()
+        try:
+            submission_table = submissions_text()
+        except Exception as exc:
+            print(f"submission table unavailable; will retry: {exc}", flush=True)
+            print(f"sleeping {poll_seconds}s", flush=True)
+            time.sleep(poll_seconds)
+            continue
         today_count = utc_submission_count_today(submission_table)
         print(f"UTC submissions today: {today_count}/{DAILY_SUBMISSION_CAP}", flush=True)
 
