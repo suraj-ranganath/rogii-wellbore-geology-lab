@@ -57,12 +57,12 @@ CANDIDATES = [
         output_dir=Path("outputs/queue_20260605/public_blend_v2_fixed"),
     ),
     Candidate(
-        name="aiden_pf_scale2703125",
-        kernel="surajranganath17/rogii-aiden-pf-scale2703125",
+        name="formation_datum_sigma20000",
+        kernel="surajranganath17/rogii-formation-datum-sigma20000",
         version=1,
-        message="aiden pf scale 2.703125 dynamic",
-        kernel_dir=Path("kaggle/kernels/aiden_pf_scale2703125"),
-        output_dir=Path("outputs/queue_20260605/aiden_pf_scale2703125"),
+        message="formation datum dynamic sigma 20000",
+        kernel_dir=Path("kaggle/kernels/formation_datum_sigma20000"),
+        output_dir=Path("outputs/queue_20260605/formation_datum_sigma20000"),
     ),
     Candidate(
         name="sunny_v10_w070",
