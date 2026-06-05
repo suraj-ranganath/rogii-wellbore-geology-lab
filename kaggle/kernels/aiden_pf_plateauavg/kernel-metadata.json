@@ -1,0 +1,21 @@
+{
+  "id": "surajranganath17/rogii-aiden-pf-plateauavg",
+  "title": "ROGII Aiden PF PlateauAvg",
+  "code_file": "rogii-0605-aiden-pf-plateauavg.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [
+    "particle-filter",
+    "dynamic"
+  ],
+  "dataset_sources": [],
+  "kernel_sources": [],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "model_sources": []
+}

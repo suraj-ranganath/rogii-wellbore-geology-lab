@@ -11,6 +11,7 @@ __pycache__/
 data/raw/
 data/interim/
 data/processed/
+external_kernels/
 models/
 outputs/
 submissions/

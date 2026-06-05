@@ -1,0 +1,23 @@
+{
+  "id": "surajranganath17/rogii-sunny-v10-weight070",
+  "title": "ROGII Sunny V10 Weight070",
+  "code_file": "sunny_v10_w070.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [
+    "gpu"
+  ],
+  "dataset_sources": [
+    "thbdh5765/rogii-v10-fresh-artifacts",
+    "needless090/rogii-tabicl-mirror"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "model_sources": []
+}

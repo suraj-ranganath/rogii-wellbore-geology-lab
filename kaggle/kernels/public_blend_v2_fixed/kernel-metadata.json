@@ -1,0 +1,22 @@
+{
+  "id": "surajranganath17/rogii-public-blend-v2-fixed",
+  "title": "ROGII Public Blend V2 Fixed",
+  "code_file": "rogii2026-public-blend-v2.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [
+    "blend",
+    "gpu",
+    "dynamic"
+  ],
+  "dataset_sources": [],
+  "kernel_sources": [],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "model_sources": []
+}
