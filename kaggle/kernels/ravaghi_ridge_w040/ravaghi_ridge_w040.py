@@ -170,6 +170,7 @@ import numpy as np
 import warnings
 import joblib
 import time
+RUN_START = time.time()
 import glob
 import os
 
@@ -224,6 +225,7 @@ BEAM_CONFIGS = [
     (30,  8.0,  70.0, 2),
     (10, 50.0, 400.0, 0),
 ]
+ACTIVE_BEAM_CONFIGS = BEAM_CONFIGS
 
 
 def tvt_from_contacts(hw_tr, tw_tr, ref_col='EGFDU'):
@@ -436,7 +438,7 @@ def run_beam_ensemble(hw, tw):
     hgr    = gr_all[ev.index]
 
     beam_results = [beam_search(hgr, tw_tvt, tw_gr, last_tvt, bs, mc, es, r)
-                    for (bs, mc, es, r) in BEAM_CONFIGS]
+                    for (bs, mc, es, r) in ACTIVE_BEAM_CONFIGS]
 
     beam_mean = np.stack(beam_results, 0).mean(0)
 
@@ -497,7 +499,13 @@ BEAMS=[
     (15,25.0,180.0,2,"stiff"),
 ]
 
-PF_N=600; ANCC_N=600
+ROGII_HIDDEN_SAFE_PROFILE = "w040"
+PF_N=256; ANCC_N=256
+FINAL_SELECTOR_PF_PARTICLES=256
+FINAL_SELECTOR_PF_SEEDS=32
+FINAL_LOOP_DEADLINE_SEC=int(os.environ.get("ROGII_FINAL_LOOP_DEADLINE_SEC", "30000"))
+ACTIVE_BEAM_CONFIGS = BEAM_CONFIGS[:7]
+print(f"Hidden-safe Ridge profile={ROGII_HIDDEN_SAFE_PROFILE} feature_particles={PF_N} final_particles={FINAL_SELECTOR_PF_PARTICLES} final_seeds={FINAL_SELECTOR_PF_SEEDS} beams={len(ACTIVE_BEAM_CONFIGS)}")
 PF_MOM=0.993; PF_VN=0.005; PF_PN=0.01
 PF_GR_SIG_MIN=10.; PF_GR_SIG_MAX=60.; PF_GR_SIG_DEF=30.
 PF_INIT_V_STD=0.02; PF_INIT_SPR=0.5; PF_RESAMP=0.5
@@ -1381,8 +1389,14 @@ train_wells = [os.path.basename(f).split('__')[0] for f in train_hw_files]
 test_hw_files = sorted(glob.glob(str(CFG.dataset_path / 'test' / '*__horizontal_well.csv')))
 test_wells = [os.path.basename(f).split('__')[0] for f in test_hw_files]
 
+sub_1_tvt_by_id = dict(zip(sub_1['id'], sub_1['tvt']))
 rows = []
 for i, wid in enumerate(test_wells):
+    if time.time() - RUN_START > FINAL_LOOP_DEADLINE_SEC:
+        print(f'\nFINAL_LOOP_DEADLINE reached before {wid}; using Ridge-stack fallback for remaining wells')
+        for _, row in sample[sample['well'] == wid].iterrows():
+            rows.append({'id': row['id'], 'tvt': float(sub_1_tvt_by_id[row['id']])})
+        continue
     print(f'\nProcessing {i + 1}/{len(test_wells)}: {wid}...')
     hw_te, tw_te = load_well(wid, 'test')
 
@@ -1406,9 +1420,9 @@ for i, wid in enumerate(test_wells):
     # 128-seed likelihood-weighted PF ensemble
     try:
         tw_ref = tw_tr if tw_tr is not None else tw_te
-        pf_by_scale = run_pf_lik_ensemble_scales(hw_te, tw_ref, n_particles=600, n_seeds=256)
+        pf_by_scale = run_pf_lik_ensemble_scales(hw_te, tw_ref, n_particles=FINAL_SELECTOR_PF_PARTICLES, n_seeds=FINAL_SELECTOR_PF_SEEDS)
         tvt_pf = pf_by_scale['pf_scale_8']
-        print(f'  PF 128-seed lik-ensemble OK scales={SELECTOR_SCALES}')
+        print(f'  PF hidden-safe lik-ensemble OK seeds={FINAL_SELECTOR_PF_SEEDS} particles={FINAL_SELECTOR_PF_PARTICLES} scales={SELECTOR_SCALES}')
     except Exception as e:
         print(f'  PF failed: {e}')
         last_known = hw_te['TVT_input'].dropna()
