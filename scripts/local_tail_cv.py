@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import Ridge
-from sklearn.model_selection import GroupKFold, KFold
+from sklearn.model_selection import GroupKFold, KFold, StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -185,25 +185,70 @@ def load_local_frame(args: argparse.Namespace) -> LocalFrame:
     return LocalFrame(x=x_all, y=y_all, groups=groups_all, ids=ids_all, priors=priors_all)
 
 
-def make_splits(groups: pd.Series, n_splits: int, seed: int) -> list[tuple[np.ndarray, np.ndarray]]:
+def make_well_strata(groups: pd.Series, x: pd.DataFrame) -> pd.Series:
+    stats = (
+        pd.DataFrame(
+            {
+                "well": groups.to_numpy(),
+                "eval_rows": x["eval_rows"].to_numpy(float),
+                "known_len": x["known_len"].to_numpy(float),
+                "well_rows": x["well_rows"].to_numpy(float),
+            }
+        )
+        .groupby("well")
+        .median(numeric_only=True)
+    )
+
+    labels = []
+    for column in ("eval_rows", "known_len", "well_rows"):
+        values = stats[column]
+        try:
+            labels.append(pd.qcut(values.rank(method="first"), q=3, labels=False).astype(str))
+        except ValueError:
+            labels.append(pd.Series("0", index=stats.index))
+    strata = labels[0] + "_" + labels[1] + "_" + labels[2]
+    counts = strata.value_counts()
+    rare = set(counts[counts < 2].index)
+    return strata.where(~strata.isin(rare), "rare")
+
+
+def make_splits(
+    groups: pd.Series,
+    n_splits: int,
+    seed: int,
+    splitter_name: str,
+    x: pd.DataFrame,
+) -> list[tuple[np.ndarray, np.ndarray]]:
     unique_groups = groups.nunique()
     n_splits = min(n_splits, int(unique_groups))
     if n_splits < 2:
         raise ValueError("Need at least two wells for local CV.")
     if unique_groups == n_splits:
         splitter = GroupKFold(n_splits=n_splits)
+        return list(splitter.split(np.zeros(len(groups)), groups=groups))
+
+    wells = pd.Series(sorted(groups.unique()))
+    if splitter_name == "stratified":
+        strata = make_well_strata(groups, x).reindex(wells).fillna("rare")
+        min_count = int(strata.value_counts().min())
+        if min_count >= n_splits:
+            splitter = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
+            split_iter = splitter.split(wells, strata)
+        else:
+            splitter = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
+            split_iter = splitter.split(wells)
     else:
         splitter = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
-        wells = pd.Series(sorted(groups.unique()))
-        fold_pairs = []
-        for train_well_idx, valid_well_idx in splitter.split(wells):
-            train_wells = set(wells.iloc[train_well_idx])
-            valid_wells = set(wells.iloc[valid_well_idx])
-            train_idx = np.flatnonzero(groups.isin(train_wells).to_numpy())
-            valid_idx = np.flatnonzero(groups.isin(valid_wells).to_numpy())
-            fold_pairs.append((train_idx, valid_idx))
-        return fold_pairs
-    return list(splitter.split(np.zeros(len(groups)), groups=groups))
+        split_iter = splitter.split(wells)
+
+    fold_pairs = []
+    for train_well_idx, valid_well_idx in split_iter:
+        train_wells = set(wells.iloc[train_well_idx])
+        valid_wells = set(wells.iloc[valid_well_idx])
+        train_idx = np.flatnonzero(groups.isin(train_wells).to_numpy())
+        valid_idx = np.flatnonzero(groups.isin(valid_wells).to_numpy())
+        fold_pairs.append((train_idx, valid_idx))
+    return fold_pairs
 
 
 def fit_ridge_model(x: pd.DataFrame, target: pd.Series, alpha: float) -> Pipeline:
@@ -316,7 +361,6 @@ def score_prediction(y: pd.Series, pred: np.ndarray, groups: pd.Series) -> dict[
 
 
 def run_cv(frame: LocalFrame, args: argparse.Namespace) -> dict[str, Any]:
-    splits = make_splits(frame.groups, args.folds, args.seed)
     method_names = ["last_known", "linear_md", "z_anchor"]
     if args.include_ridge:
         method_names.extend(["ridge_last_residual", "ridge_z_residual"])
@@ -325,60 +369,82 @@ def run_cv(frame: LocalFrame, args: argparse.Namespace) -> dict[str, Any]:
     if args.include_catboost:
         method_names.extend(["catboost_last_residual", "catboost_z_residual"])
 
-    oof = {name: np.full(len(frame.y), np.nan, dtype=float) for name in method_names}
+    pred_sum = {name: np.zeros(len(frame.y), dtype=float) for name in method_names}
+    pred_count = {name: np.zeros(len(frame.y), dtype=float) for name in method_names}
     fold_rows: list[dict[str, Any]] = []
 
-    for fold, (train_idx, valid_idx) in enumerate(splits, start=1):
-        x_train = frame.x.iloc[train_idx]
-        x_valid = frame.x.iloc[valid_idx]
-        y_train = frame.y.iloc[train_idx]
-        y_valid = frame.y.iloc[valid_idx]
+    for repeat in range(args.repeats):
+        split_seed = args.seed + repeat * 1009
+        splits = make_splits(frame.groups, args.folds, split_seed, args.splitter, frame.x)
+        for fold, (train_idx, valid_idx) in enumerate(splits, start=1):
+            x_train = frame.x.iloc[train_idx]
+            x_valid = frame.x.iloc[valid_idx]
+            y_train = frame.y.iloc[train_idx]
+            y_valid = frame.y.iloc[valid_idx]
+            fold_pred: dict[str, np.ndarray] = {}
 
-        for name in ("last_known", "linear_md", "z_anchor"):
-            oof[name][valid_idx] = frame.priors[name].iloc[valid_idx].to_numpy(float)
+            for name in ("last_known", "linear_md", "z_anchor"):
+                fold_pred[name] = frame.priors[name].iloc[valid_idx].to_numpy(float)
 
-        if args.include_ridge:
-            last_train = frame.priors["last_known"].iloc[train_idx]
-            last_valid = frame.priors["last_known"].iloc[valid_idx].to_numpy(float)
-            z_train = frame.priors["z_anchor"].iloc[train_idx]
-            z_valid = frame.priors["z_anchor"].iloc[valid_idx].to_numpy(float)
+            if args.include_ridge:
+                last_train = frame.priors["last_known"].iloc[train_idx]
+                last_valid = frame.priors["last_known"].iloc[valid_idx].to_numpy(float)
+                z_train = frame.priors["z_anchor"].iloc[train_idx]
+                z_valid = frame.priors["z_anchor"].iloc[valid_idx].to_numpy(float)
 
-            ridge_last = fit_ridge_model(x_train, y_train - last_train, alpha=args.ridge_alpha)
-            oof["ridge_last_residual"][valid_idx] = last_valid + ridge_last.predict(x_valid)
+                ridge_last = fit_ridge_model(x_train, y_train - last_train, alpha=args.ridge_alpha)
+                fold_pred["ridge_last_residual"] = last_valid + ridge_last.predict(x_valid)
 
-            ridge_z = fit_ridge_model(x_train, y_train - z_train, alpha=args.ridge_alpha)
-            oof["ridge_z_residual"][valid_idx] = z_valid + ridge_z.predict(x_valid)
+                ridge_z = fit_ridge_model(x_train, y_train - z_train, alpha=args.ridge_alpha)
+                fold_pred["ridge_z_residual"] = z_valid + ridge_z.predict(x_valid)
 
-        if args.include_lgbm:
-            last_train = frame.priors["last_known"].iloc[train_idx]
-            last_valid = frame.priors["last_known"].iloc[valid_idx].to_numpy(float)
-            z_train = frame.priors["z_anchor"].iloc[train_idx]
-            z_valid = frame.priors["z_anchor"].iloc[valid_idx].to_numpy(float)
+            if args.include_lgbm:
+                last_train = frame.priors["last_known"].iloc[train_idx]
+                last_valid = frame.priors["last_known"].iloc[valid_idx].to_numpy(float)
+                z_train = frame.priors["z_anchor"].iloc[train_idx]
+                z_valid = frame.priors["z_anchor"].iloc[valid_idx].to_numpy(float)
 
-            lgbm_last = fit_lgbm_model(x_train, y_train - last_train, args)
-            oof["lgbm_last_residual"][valid_idx] = last_valid + lgbm_last.predict(x_valid)
+                lgbm_last = fit_lgbm_model(x_train, y_train - last_train, args)
+                fold_pred["lgbm_last_residual"] = last_valid + lgbm_last.predict(x_valid)
 
-            lgbm_z = fit_lgbm_model(x_train, y_train - z_train, args)
-            oof["lgbm_z_residual"][valid_idx] = z_valid + lgbm_z.predict(x_valid)
+                lgbm_z = fit_lgbm_model(x_train, y_train - z_train, args)
+                fold_pred["lgbm_z_residual"] = z_valid + lgbm_z.predict(x_valid)
 
-        if args.include_catboost:
-            last_train = frame.priors["last_known"].iloc[train_idx]
-            last_valid = frame.priors["last_known"].iloc[valid_idx].to_numpy(float)
-            z_train = frame.priors["z_anchor"].iloc[train_idx]
-            z_valid = frame.priors["z_anchor"].iloc[valid_idx].to_numpy(float)
+            if args.include_catboost:
+                last_train = frame.priors["last_known"].iloc[train_idx]
+                last_valid = frame.priors["last_known"].iloc[valid_idx].to_numpy(float)
+                z_train = frame.priors["z_anchor"].iloc[train_idx]
+                z_valid = frame.priors["z_anchor"].iloc[valid_idx].to_numpy(float)
 
-            cat_last = fit_catboost_model(x_train, y_train - last_train, args)
-            oof["catboost_last_residual"][valid_idx] = last_valid + cat_last.predict(x_valid)
+                cat_last = fit_catboost_model(x_train, y_train - last_train, args)
+                fold_pred["catboost_last_residual"] = last_valid + cat_last.predict(x_valid)
 
-            cat_z = fit_catboost_model(x_train, y_train - z_train, args)
-            oof["catboost_z_residual"][valid_idx] = z_valid + cat_z.predict(x_valid)
+                cat_z = fit_catboost_model(x_train, y_train - z_train, args)
+                fold_pred["catboost_z_residual"] = z_valid + cat_z.predict(x_valid)
 
-        fold_result = {"fold": fold, "train_rows": int(len(train_idx)), "valid_rows": int(len(valid_idx))}
-        for name in method_names:
-            fold_result[name] = safe_float(rmse(y_valid.to_numpy(float), oof[name][valid_idx]))
-        fold_rows.append(fold_result)
-        print(json.dumps(fold_result), flush=True)
+            fold_result = {
+                "repeat": repeat + 1,
+                "fold": fold,
+                "seed": split_seed,
+                "train_rows": int(len(train_idx)),
+                "valid_rows": int(len(valid_idx)),
+            }
+            for name, values in fold_pred.items():
+                pred_sum[name][valid_idx] += values
+                pred_count[name][valid_idx] += 1.0
+                fold_result[name] = safe_float(rmse(y_valid.to_numpy(float), values))
+            fold_rows.append(fold_result)
+            print(json.dumps(fold_result), flush=True)
 
+    oof = {
+        name: np.divide(
+            pred_sum[name],
+            pred_count[name],
+            out=np.full(len(frame.y), np.nan, dtype=float),
+            where=pred_count[name] > 0,
+        )
+        for name in method_names
+    }
     results = {
         name: score_prediction(frame.y, pred, frame.groups)
         for name, pred in sorted(oof.items(), key=lambda item: rmse(frame.y.to_numpy(float), item[1]))
@@ -392,6 +458,8 @@ def run_cv(frame: LocalFrame, args: argparse.Namespace) -> dict[str, Any]:
         "best": next(iter(results.items())) if results else None,
         "args": {
             "folds": args.folds,
+            "repeats": args.repeats,
+            "splitter": args.splitter,
             "max_wells": args.max_wells,
             "well_stride": args.well_stride,
             "include_extra_numeric": args.include_extra_numeric,
@@ -415,6 +483,8 @@ def main() -> None:
     parser.add_argument("--max-wells", type=int, default=80)
     parser.add_argument("--well-stride", type=int, default=1)
     parser.add_argument("--folds", type=int, default=5)
+    parser.add_argument("--repeats", type=int, default=1)
+    parser.add_argument("--splitter", choices=["kfold", "stratified"], default="stratified")
     parser.add_argument("--seed", type=int, default=204)
     parser.add_argument("--progress", type=int, default=100)
     parser.add_argument("--include-extra-numeric", action="store_true")

@@ -56,6 +56,7 @@ uv run python scripts/score_visible_overlap.py
 
 Current competition constraints are tracked in `docs/competition_constraints.md`.
 Fast experiment results are tracked in `docs/experiment_log.md`.
+Local scoring protocol is tracked in `docs/local_scoring_strategy.md`.
 
 Training commands exist, but should be launched only when we are ready for an experiment:
 
@@ -84,7 +85,7 @@ For candidate-method development, use train wells as a local hidden-tail scoring
 set:
 
 ```bash
-uv run python scripts/local_tail_cv.py --max-wells 80
+uv run python scripts/local_tail_cv.py --max-wells 80 --folds 5 --repeats 3 --splitter stratified
 uv run python scripts/local_tail_cv.py --max-wells 200 --include-lgbm
 uv run python scripts/local_tail_cv.py --max-wells 80 --include-catboost --catboost-iterations 80
 ```
