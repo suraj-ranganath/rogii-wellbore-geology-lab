@@ -9,6 +9,7 @@ __pycache__/
 
 # Keep competition data, generated models, and submissions out of git.
 data/raw/
+data/external/
 data/interim/
 data/processed/
 external_kernels/

@@ -5,7 +5,6 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 BASE_DIR = ROOT / "kaggle" / "kernels" / "ravaghi_ridge_w040"
 BASE_CODE = BASE_DIR / "ravaghi_ridge_w040.py"

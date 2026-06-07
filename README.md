@@ -90,6 +90,7 @@ uv run python scripts/local_tail_cv.py --max-wells 80 --folds 5 --repeats 3 --sp
 uv run python scripts/local_tail_cv.py --max-wells 200 --include-lgbm
 uv run python scripts/local_tail_cv.py --max-wells 80 --include-catboost --catboost-iterations 80
 uv run python scripts/local_pf_selector_cv.py --max-wells 40 --n-seeds 16
+uv run python scripts/local_ridge_final_blend_cv.py --max-wells 80 --selector-particles 128 --selector-seeds 8
 ```
 
 For larger local-CV sweeps on `ds-serv6`:
