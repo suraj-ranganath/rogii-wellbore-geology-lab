@@ -50,6 +50,7 @@ uv run rogii eval-priors
 uv run rogii eval-formation-priors
 uv run rogii eval-dense-formation-priors
 uv run python scripts/smoke_20260607_candidates.py
+uv run python scripts/local_tail_cv.py --max-wells 80
 ```
 
 Current competition constraints are tracked in `docs/competition_constraints.md`.
@@ -76,6 +77,22 @@ To refresh the notebook outputs from Kaggle first without submitting:
 
 ```bash
 uv run python scripts/smoke_20260607_candidates.py --refresh-kaggle
+```
+
+For candidate-method development, use train wells as a local hidden-tail scoring
+set:
+
+```bash
+uv run python scripts/local_tail_cv.py --max-wells 80
+uv run python scripts/local_tail_cv.py --max-wells 200 --include-lgbm
+uv run python scripts/local_tail_cv.py --max-wells 80 --include-catboost --catboost-iterations 80
+```
+
+For larger local-CV sweeps on `ds-serv6`:
+
+```bash
+bash scripts/run_ds_serv6_tail_cv.sh tailcv_full_lgbm --max-wells 773 --include-lgbm --lgbm-estimators 300
+bash scripts/run_ds_serv6_tail_cv.sh tailcv_gpu_catboost --max-wells 773 --include-catboost --catboost-task-type GPU --catboost-devices 0 --catboost-iterations 500
 ```
 
 ## Project Layout
