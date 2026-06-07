@@ -33,6 +33,16 @@ All commands use `uv` from the project root. Generated JSON artifacts stay under
 | Formation-datum sigma sweep | local import of `formation_datum_dynamic.py` over `BLEND_SIGMA` values | visible overlap smoke | best 0.52 visible RMSE at sigma 20000 | Because larger sigma trusts the formation invariant more, the final queue includes both the public-inspired sigma 5000 and a more aggressive sigma 20000 variant for diversity. |
 | 2026-06-05 next-reset queue | `uv run python scripts/queue_20260605_candidates.py --timeout-minutes 2400 --poll-seconds 300` | queued Kaggle code submissions | queued | Five hidden-compatible candidates are pushed/queued for the next UTC reset: Aiden PF plateauavg, formation-datum sigma 5000, fixed public blend v2, formation-datum sigma 20000, and Sunny+v10 70/30. The monitor submits only completed kernels after the 5/day cap resets. |
 
+## 2026-06-07
+
+| Run | Command | Scope | RMSE | Notes |
+| --- | --- | --- | ---: | --- |
+| Hidden-safe Ridge v3 batch | `uv run python scripts/queue_20260606_hidden_safe_candidates.py --timeout-minutes 2400 --poll-seconds 300` | Kaggle code submissions | best 7.906 public | All five hidden-safe Ridge submissions completed and scored. Best was `ravaghi ridge hidden-safe v3 w040` at `7.906`, improving over Sunny+v10 `8.421`. Other scores: w035 `8.108`, w030 `8.187`, w020 `8.233`, w025 `8.439`. |
+| New discussion/PPT strategy sweep | `uv run kaggle competitions topic-messages ...` and PPT XML extraction | research | n/a | Updated `docs/strategy_20260607.md`. Main actionable idea is `dTVT ~= -dZ + offset/state`, but naive train-hidden validation of tail-offset dZ was poor (`~45` global RMSE), so dZ/state is not used standalone. Prefix GR and formation signals are only used as small gated corrections. |
+| 2026-06-07 five-candidate materialization | `uv run python scripts/materialize_20260607_candidates.py` | generated Kaggle kernels | preflight valid | Generated five hidden-compatible candidates from the proven `w040` base: PF40 robust seed average, selector070, selector080, prefix-gated, and formation+prefix-gated. All script kernels pass `py_compile`. |
+| 2026-06-07 candidate preflight | `uv run kaggle kernels push -p kaggle/kernels/ridge_w040_*` then `uv run kaggle kernels output ...` | Kaggle visible-output runs | valid outputs | All five pushed as version 1 and produced valid `submission.csv` files. Vector distances from current `w040`: PF40 `1.326`, selector070 `2.166`, selector080 `2.277`, prefix gate `3.716`, formprefix gate `2.285`. Visible runtimes were about 5.6-7.2 minutes. |
+| 2026-06-07 next-reset queue | launchd `com.suraj.rogii.nextwindowqueue` running `scripts/queue_20260607_candidates.py` | queued Kaggle code submissions | waiting | Queue state is preloaded with version 1 kernel refs and validated output paths, so the monitor will not push duplicate versions. It is currently waiting at daily cap `5/5` and will submit after the next UTC reset. |
+
 Interpretation:
 
 - Alignment features are directionally useful in the smoke harness.

@@ -1,0 +1,24 @@
+{
+  "id": "surajranganath17/rogii-ridge-w040-pf40",
+  "title": "ROGII Ridge W040 PF40",
+  "code_file": "ridge_w040_pf40.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [
+    "ridge",
+    "hidden-safe",
+    "candidate"
+  ],
+  "dataset_sources": [
+    "ravaghi/wellbore-geology-prediction-artifacts"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "model_sources": []
+}
