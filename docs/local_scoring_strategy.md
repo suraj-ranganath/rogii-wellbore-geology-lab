@@ -59,3 +59,17 @@ final PF/selector blend itself into the local train-tail proxy. The notebook log
 already report an internal Ridge OOF around `10.434`, but the existing logs do
 not score the final selector blend variants locally, which is why all `w020` to
 `w040` variants share the same internal OOF line.
+
+## Calibration Against Successful Submissions
+
+See `docs/proxy_calibration_20260607.md`.
+
+The short version: family-level local proxy scores correlate well with known
+Kaggle public scores after adding PF selector replay. The proxy correctly ranks:
+
+1. Ridge/PF/selector `w040`
+2. PF selector / physical-noise PF
+3. Last-known
+
+It still cannot rank fine variants inside the Ridge family until the final
+blend/postprocess stage is scored locally.

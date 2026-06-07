@@ -57,6 +57,7 @@ uv run python scripts/score_visible_overlap.py
 Current competition constraints are tracked in `docs/competition_constraints.md`.
 Fast experiment results are tracked in `docs/experiment_log.md`.
 Local scoring protocol is tracked in `docs/local_scoring_strategy.md`.
+Known local-vs-Kaggle calibration is tracked in `docs/proxy_calibration_20260607.md`.
 
 Training commands exist, but should be launched only when we are ready for an experiment:
 
@@ -88,6 +89,7 @@ set:
 uv run python scripts/local_tail_cv.py --max-wells 80 --folds 5 --repeats 3 --splitter stratified
 uv run python scripts/local_tail_cv.py --max-wells 200 --include-lgbm
 uv run python scripts/local_tail_cv.py --max-wells 80 --include-catboost --catboost-iterations 80
+uv run python scripts/local_pf_selector_cv.py --max-wells 40 --n-seeds 16
 ```
 
 For larger local-CV sweeps on `ds-serv6`:
