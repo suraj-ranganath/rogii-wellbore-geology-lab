@@ -51,6 +51,7 @@ uv run rogii eval-formation-priors
 uv run rogii eval-dense-formation-priors
 uv run python scripts/smoke_20260607_candidates.py
 uv run python scripts/local_tail_cv.py --max-wells 80
+uv run python scripts/score_visible_overlap.py
 ```
 
 Current competition constraints are tracked in `docs/competition_constraints.md`.
@@ -94,6 +95,17 @@ For larger local-CV sweeps on `ds-serv6`:
 bash scripts/run_ds_serv6_tail_cv.sh tailcv_full_lgbm --max-wells 773 --include-lgbm --lgbm-estimators 300
 bash scripts/run_ds_serv6_tail_cv.sh tailcv_gpu_catboost --max-wells 773 --include-catboost --catboost-task-type GPU --catboost-devices 0 --catboost-iterations 500
 ```
+
+To diagnose a produced `submission.csv` against the three downloadable
+visible-overlap wells:
+
+```bash
+uv run python scripts/score_visible_overlap.py
+uv run python scripts/score_visible_overlap.py candidate=submissions/candidate.csv
+```
+
+This visible-overlap score is not comparable to the Kaggle public score because
+the downloadable wells overlap train and are only a plumbing test.
 
 ## Project Layout
 
