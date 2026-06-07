@@ -390,6 +390,45 @@ def candidate_scores(
     return dict(sorted(scores.items(), key=lambda item: item[1]["rmse"])), predictions
 
 
+def write_component_cache(
+    path: Path,
+    frame: pd.DataFrame,
+    predictions: dict[str, pd.Series],
+) -> None:
+    ids = frame["id"].astype(str)
+    keep_columns = [
+        "id",
+        "well",
+        "target",
+        "last_known_tvt",
+        "eval_len",
+        "known_len",
+        "md_since",
+        "frac",
+        "z",
+        "sig_std",
+        "beam_std_d",
+        "pf_ancc_std",
+        "sc8_sc",
+        "sc15_sc",
+        "sc25_sc",
+        "sc_ens_d",
+        "dense_std",
+        "dense_dist",
+        "form_std_d",
+        "pfx_rmse",
+        "ktvt_range",
+        "ktvt_std",
+    ]
+    out = frame[[column for column in keep_columns if column in frame.columns]].copy()
+    out["truth"] = frame["last_known_tvt"].to_numpy(float) + frame["target"].to_numpy(float)
+    for name, values in predictions.items():
+        out[name] = values.reindex(ids).to_numpy(float)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    out.to_parquet(path, index=False)
+    print(f"wrote component cache {path} rows={len(out)} columns={len(out.columns)}", flush=True)
+
+
 def parse_grid(raw: str) -> list[float]:
     if not raw:
         return []
@@ -419,6 +458,7 @@ def main() -> None:
     parser.add_argument("--selector-particles", type=int, default=128)
     parser.add_argument("--selector-seeds", type=int, default=8)
     parser.add_argument("--ridge-weight-grid", default="0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50")
+    parser.add_argument("--components-output", type=Path)
     parser.add_argument("--download-models", action="store_true")
     parser.add_argument("--progress", type=int, default=5)
     args = parser.parse_args()
@@ -451,12 +491,14 @@ def main() -> None:
         n_seeds=args.selector_seeds,
         progress=args.progress,
     )
-    scores, _ = candidate_scores(
+    scores, predictions = candidate_scores(
         feature_frame,
         ridge_pp,
         selector,
         ridge_weight_grid=parse_grid(args.ridge_weight_grid),
     )
+    if args.components_output:
+        write_component_cache(args.components_output, feature_frame, predictions)
 
     result = {
         "args": {

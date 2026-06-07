@@ -1,0 +1,24 @@
+{
+  "id": "surajranganath17/rogii-ridge-w040-zq12-shr1000",
+  "title": "ROGII Ridge W040 ZQ12 Shr1000",
+  "code_file": "ridge_w040_zq12_shr1000.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [
+    "ridge",
+    "hidden-safe",
+    "dynamic-z"
+  ],
+  "dataset_sources": [
+    "ravaghi/wellbore-geology-prediction-artifacts"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "model_sources": []
+}
