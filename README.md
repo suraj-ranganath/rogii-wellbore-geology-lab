@@ -49,6 +49,7 @@ uv run rogii audit-data
 uv run rogii eval-priors
 uv run rogii eval-formation-priors
 uv run rogii eval-dense-formation-priors
+uv run python scripts/smoke_20260607_candidates.py
 ```
 
 Current competition constraints are tracked in `docs/competition_constraints.md`.
@@ -63,6 +64,19 @@ uv run rogii predict-submission --model models/baseline.joblib
 ```
 
 The code never submits to Kaggle. Submission upload stays manual until explicitly requested.
+
+For the current queued notebook candidates, run the local smoke harness before spending
+submissions:
+
+```bash
+uv run python scripts/smoke_20260607_candidates.py
+```
+
+To refresh the notebook outputs from Kaggle first without submitting:
+
+```bash
+uv run python scripts/smoke_20260607_candidates.py --refresh-kaggle
+```
 
 ## Project Layout
 
