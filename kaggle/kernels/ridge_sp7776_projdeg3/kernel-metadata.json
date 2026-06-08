@@ -1,0 +1,23 @@
+{
+  "id": "surajranganath17/rogii-ridge-sp7776-projection-deg3",
+  "title": "ROGII Ridge SP7776 Projection Deg3",
+  "code_file": "ridge_sp7776_projdeg3.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [
+    "ridge-sp",
+    "projection"
+  ],
+  "dataset_sources": [
+    "ravaghi/wellbore-geology-prediction-artifacts"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "model_sources": []
+}

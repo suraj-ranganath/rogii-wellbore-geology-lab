@@ -1,0 +1,23 @@
+{
+  "id": "surajranganath17/rogii-ridge-sp45-projection",
+  "title": "ROGII Ridge SP45 Projection",
+  "code_file": "ridge_sp45_proj.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [
+    "ridge-sp",
+    "projection"
+  ],
+  "dataset_sources": [
+    "ravaghi/wellbore-geology-prediction-artifacts"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "model_sources": []
+}
