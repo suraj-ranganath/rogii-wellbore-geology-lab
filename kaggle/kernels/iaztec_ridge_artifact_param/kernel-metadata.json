@@ -1,0 +1,22 @@
+{
+  "id": "surajranganath17/rogii-ridge-artifact-param",
+  "title": "ROGII Ridge Artifact Param",
+  "code_file": "rogii-wellbore-geology-ridge-artifact-param.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [],
+  "dataset_sources": [
+    "ravaghi/wellbore-geology-prediction-artifacts"
+  ],
+  "kernel_sources": [
+    "packagemanager/pm-122018862-at-06-09-2026-02-34-43"
+  ],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "model_sources": []
+}

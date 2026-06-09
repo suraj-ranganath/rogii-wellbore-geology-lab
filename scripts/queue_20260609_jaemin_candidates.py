@@ -24,6 +24,14 @@ queue.CANDIDATES = [
         kernel_dir=Path("kaggle/kernels/jaemin_sp45_fleongg_w060"),
         output_dir=Path("outputs/queue_20260609_jaemin/jaemin_sp45_fleongg_w060"),
     ),
+    queue.Candidate(
+        name="yaroslav_sel15_forced_selector",
+        kernel="surajranganath17/rogii-sel15-forced-selector",
+        version=1,
+        message="yaroslav sel15 forced selector reference",
+        kernel_dir=Path("kaggle/kernels/yaroslav_sel15_forced_selector"),
+        output_dir=Path("outputs/queue_20260609_jaemin/yaroslav_sel15_forced_selector"),
+    ),
 ]
 
 
