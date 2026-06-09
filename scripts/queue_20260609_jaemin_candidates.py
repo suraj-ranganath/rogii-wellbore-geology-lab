@@ -32,6 +32,22 @@ queue.CANDIDATES = [
         kernel_dir=Path("kaggle/kernels/yaroslav_sel15_forced_selector"),
         output_dir=Path("outputs/queue_20260609_jaemin/yaroslav_sel15_forced_selector"),
     ),
+    queue.Candidate(
+        name="jaemin_sp45_fleongg_jy",
+        kernel="surajranganath17/rogii-sp45-fleongg-jy-consensus",
+        version=1,
+        message="jaemin sp45 fleongg jy consensus",
+        kernel_dir=Path("kaggle/kernels/jaemin_sp45_fleongg_jy"),
+        output_dir=Path("outputs/queue_20260609_jaemin/jaemin_sp45_fleongg_jy"),
+    ),
+    queue.Candidate(
+        name="iaztec_ridge_artifact_param",
+        kernel="surajranganath17/rogii-ridge-artifact-param",
+        version=2,
+        message="iaztec ridge artifact param shim",
+        kernel_dir=Path("kaggle/kernels/iaztec_ridge_artifact_param"),
+        output_dir=Path("outputs/queue_20260609_jaemin/iaztec_ridge_artifact_param"),
+    ),
 ]
 
 

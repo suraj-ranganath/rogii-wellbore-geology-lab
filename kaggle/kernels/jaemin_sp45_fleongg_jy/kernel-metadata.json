@@ -1,9 +1,9 @@
 {
-  "id": "surajranganath17/rogii-ridge-artifact-param",
-  "title": "ROGII Ridge Artifact Param",
-  "code_file": "rogii-wellbore-geology-ridge-artifact-param.ipynb",
+  "id": "surajranganath17/rogii-sp45-fleongg-jy-consensus",
+  "title": "ROGII SP45 Fleongg JY Consensus",
+  "code_file": "jaemin_sp45_fleongg_jy.py",
   "language": "python",
-  "kernel_type": "notebook",
+  "kernel_type": "script",
   "is_private": true,
   "enable_gpu": false,
   "enable_tpu": false,
@@ -11,11 +11,11 @@
   "keywords": [],
   "dataset_sources": [
     "phongnguyn23021656/koolbox-offline",
+    "fleongg/rogii-claude-models-pub",
+    "jyxxxx/wellbore-ensemble-models-public",
     "ravaghi/wellbore-geology-prediction-artifacts"
   ],
-  "kernel_sources": [
-    "packagemanager/pm-122018862-at-06-09-2026-02-34-43"
-  ],
+  "kernel_sources": [],
   "competition_sources": [
     "rogii-wellbore-geology-prediction"
   ],

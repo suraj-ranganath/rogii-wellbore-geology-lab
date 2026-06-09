@@ -50,6 +50,20 @@ CANDIDATES = [
         ],
         final_submission_name="submission_sp45_fleongg_w0.60.csv",
     ),
+    Candidate(
+        name="jaemin_sp45_fleongg_jy",
+        source_dir=Path("/tmp/rogii_own_jy_consensus"),
+        source_file="rogii-sp45-fleongg-jy-consensus.py",
+        kernel_id="surajranganath17/rogii-sp45-fleongg-jy-consensus",
+        title="ROGII SP45 Fleongg JY Consensus",
+        code_file="jaemin_sp45_fleongg_jy.py",
+        dataset_sources=[
+            "phongnguyn23021656/koolbox-offline",
+            "fleongg/rogii-claude-models-pub",
+            "jyxxxx/wellbore-ensemble-models-public",
+            "ravaghi/wellbore-geology-prediction-artifacts",
+        ],
+    ),
 ]
 
 
