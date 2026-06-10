@@ -22,6 +22,8 @@ the user explicitly asks.
 
 Read these before making competition decisions:
 
+- [docs/strategy_history.md](docs/strategy_history.md): compact index of every
+  major strategy tried, outcome, and verdict.
 - `docs/experiment_log.md`: chronological experiment record and scores.
 - `docs/strategy_20260609.md`: latest public-blend postmortem.
 - `docs/local_scoring_strategy.md`: what local scores mean and do not mean.
