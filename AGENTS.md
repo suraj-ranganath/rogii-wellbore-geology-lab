@@ -8,7 +8,7 @@ the user explicitly asks.
 
 ## Current State
 
-- Current best public score: `7.551` from `jaemin_sp45_fleongg_w060`.
+- Current best public score: `7.541` from `final queue sp45 fleongg w060 override`.
 - Leaderboard top is `5.986`; ~96 teams sit below our `7.551`.
 - Strongest current family: SP45 projected Ridge/PF output blended with
   fleongg pretrained geosteering inference.
@@ -27,11 +27,17 @@ the user explicitly asks.
   notebooks exceeded hidden submission runtime; do not resubmit bag3 kernels
   without major runtime reduction. The medali CNN-MTP exact candidate scored
   `14.298` and is not competitive standalone.
-- The 2026-06-12 00:00 UTC queue submitted all five recovery/upside candidates:
-  `w060s`, `w100s`, `fle3n_v5_exact_h050`, `fle3n_v5_w060_h0455`, and
-  `fle3n_v5f_exact_h050`. As of submission, all were pending public scores.
-  All five were version-1 Kaggle commits with downloaded/validated
-  `submission.csv` outputs before submission.
+- The 2026-06-12 00:00 UTC queue improved the best score only marginally:
+  `w060s` scored `7.541`, `fle3n_v5_w060_h0455` `7.565`,
+  `fle3n_v5_exact_h050` `7.585`, `fle3n_v5f_exact_h050` `7.637`, and
+  `w100s` `7.766`.
+- Active queue for the 2026-06-13 00:00 UTC reset
+  (`scripts/queue_20260612_improvement_candidates.py`, tmux session
+  `rogii_improvequeue_20260612`): `fle3n_v5_exact_r2`,
+  `fle3n_v5f_exact_r2`, `jaemin_seed7_mtoshi_beicicc`,
+  `jaemin_affine_seed7_mtoshi`, and `jaemin_sp45_fleongg_w065s`.
+  All five are completed version-1 Kaggle commits with validated
+  `submission.csv` outputs. The queue is waiting at daily cap `5/5`.
 - Weaker recent directions: standalone ridge-artifact/projection candidates
   (`7.822+`), Yaroslav D6 (`7.903`), and JY dynamic correction (`7.672`).
 - Visible-overlap local scoring is not reliable for selecting close variants.
@@ -43,6 +49,8 @@ Read these before making competition decisions:
 - [docs/strategy_history.md](docs/strategy_history.md): compact index of every
   major strategy tried, outcome, and verdict.
 - `docs/experiment_log.md`: chronological experiment record and scores.
+- `docs/strategy_20260612_improvement_queue.md`: active improvement queue
+  after the `7.541` result.
 - `docs/strategy_20260611_final_queue.md`: active final queue after the
   timed-out bagged batch.
 - `docs/strategy_20260610.md`: previous SP45-heavy ladder, bagging, and

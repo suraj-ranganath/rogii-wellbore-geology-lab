@@ -1,0 +1,22 @@
+{
+  "id": "surajranganath17/rogii-jaemin-seed7-mtoshi-beicicc",
+  "title": "rogii-jaemin-seed7-mtoshi-beicicc",
+  "code_file": "jaemin_seed7_mtoshi_beicicc.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [],
+  "dataset_sources": [
+    "fleongg/rogii-claude-models-pub",
+    "yieldsmarter/rogii2026-dependencies",
+    "ravaghi/wellbore-geology-prediction-artifacts"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "model_sources": []
+}

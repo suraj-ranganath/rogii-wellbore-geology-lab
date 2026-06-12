@@ -1,0 +1,27 @@
+{
+  "id": "jaemin3404/rogii-affine-seed7-mtoshi-beicicc-w633823m24",
+  "id_no": 122679897,
+  "title": "rogii-affine-seed7-mtoshi-beicicc-w633823m24",
+  "code_file": "rogii-affine-seed7-mtoshi-beicicc-w633823m24.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": false,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [],
+  "dataset_sources": [
+    "fleongg/rogii-claude-models-pub",
+    "yieldsmarter/rogii2026-dependencies",
+    "ravaghi/wellbore-geology-prediction-artifacts"
+  ],
+  "kernel_sources": [
+    "packagemanager/pm-121894185-at-06-11-2026-21-26-23"
+  ],
+  "competition_sources": [
+    "rogii-wellbore-geology-prediction"
+  ],
+  "model_sources": [],
+  "docker_image": "gcr.io/kaggle-images/python@sha256:e5452ce6268c2e8345cfe5141f31ca7ff47032aca46a7ea532bbb87481281d0c",
+  "machine_shape": "None"
+}
