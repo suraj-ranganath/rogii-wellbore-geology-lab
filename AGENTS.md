@@ -9,23 +9,44 @@ the user explicitly asks.
 ## Current State
 
 - Current best public score: `7.551` from `jaemin_sp45_fleongg_w060`.
-- Previous best: `7.858` from `drift geosteering pretrained structural`.
+- Leaderboard top is `5.986`; ~96 teams sit below our `7.551`.
 - Strongest current family: SP45 projected Ridge/PF output blended with
   fleongg pretrained geosteering inference.
-- Latest useful lesson: increasing the SP45 weight from `0.55` to `0.60`
-  improved public RMSE (`7.609` -> `7.551`). Next controlled sweep should
-  test nearby SP45-heavy weights, especially `0.62` to `0.70`.
+- 2026-06-10 analytic evidence (`scripts/blend_qp_20260610.py`,
+  `docs/strategy_20260610.md`): the blend optimum is well above `w=0.60`,
+  plausibly at or beyond pure SP45; pure SP45 public RMSE is bounded
+  `>= 7.25`. A `0.83 sp45 + 0.17 drift_geo` mix is the simplex-QP optimum.
+- Cross-run nondeterminism on Kaggle is large (component RMS `0.46` sp45,
+  `1.32` fleongg between identical-code runs), so close-variant public scores
+  carry run noise.
+- The pixiux guarded train-overlap override (vendored at
+  `kaggle/kernels/shared/pixiux_overlap_override.py`) is LB-validated at
+  `~-0.05` on this family (`7.572 -> 7.519`) and hidden-rerun safe. It is
+  appended to runtime-safe SP45/fleongg candidates.
+- The 2026-06-11 00:00 UTC batch failed operationally: bagged SP45-heavy
+  notebooks exceeded hidden submission runtime; do not resubmit bag3 kernels
+  without major runtime reduction. The medali CNN-MTP exact candidate scored
+  `14.298` and is not competitive standalone.
+- The 2026-06-12 00:00 UTC queue submitted all five recovery/upside candidates:
+  `w060s`, `w100s`, `fle3n_v5_exact_h050`, `fle3n_v5_w060_h0455`, and
+  `fle3n_v5f_exact_h050`. As of submission, all were pending public scores.
+  All five were version-1 Kaggle commits with downloaded/validated
+  `submission.csv` outputs before submission.
 - Weaker recent directions: standalone ridge-artifact/projection candidates
   (`7.822+`), Yaroslav D6 (`7.903`), and JY dynamic correction (`7.672`).
 - Visible-overlap local scoring is not reliable for selecting close variants.
-  Use it for row/order/value sanity checks only.
+  Use it for row/order/value sanity checks only (exception: it is the right
+  tool to verify the overlap override plumbing).
 
 Read these before making competition decisions:
 
 - [docs/strategy_history.md](docs/strategy_history.md): compact index of every
   major strategy tried, outcome, and verdict.
 - `docs/experiment_log.md`: chronological experiment record and scores.
-- `docs/strategy_20260609.md`: latest public-blend postmortem.
+- `docs/strategy_20260611_final_queue.md`: active final queue after the
+  timed-out bagged batch.
+- `docs/strategy_20260610.md`: previous SP45-heavy ladder, bagging, and
+  overlap-override strategy; useful context, but the bagged queue timed out.
 - `docs/local_scoring_strategy.md`: what local scores mean and do not mean.
 - `docs/competition_constraints.md`: Kaggle rules and daily limits.
 - `docs/proxy_calibration_20260607.md`: local-vs-Kaggle calibration notes.
