@@ -3,7 +3,9 @@
 **Team:** Suraj Ranganath and Arunima Anand  
 **Competition:** [ROGII - Wellbore Geology Prediction](https://www.kaggle.com/competitions/rogii-wellbore-geology-prediction/overview)  
 **Code:** [GitHub repository](https://github.com/suraj-ranganath/rogii-wellbore-geology-lab)  
-**Leaderboard screenshot:** attach the current Kaggle leaderboard/submissions screenshot with this report.
+**Public Leaderboard Rank:** 142 (As of June 12, 5:55PM)  
+
+![Public leaderboard rank 142](assets/public_leaderboard_rank_142_2026-06-12_1755.png)
 
 We worked on the ROGII Wellbore Geology Prediction competition, where the goal is to predict TVT values for unseen parts of wellbores. We started with simple baselines to understand the scale of the problem and to make sure the Kaggle notebook submission pipeline was correct. The last-known TVT baseline scored 15.883, which gave us a useful lower bar. From there, we tried several families of approaches: physical/PF selector models, Sunny/v10 artifact blends, target-free alignment, Ridge/PF hidden-safe blends, dynamic Z gates, structural Ridge-SP projection models, and pretrained geosteering-style models. A lot of the early work was not about chasing one public score; it was about learning which ideas were hidden-compatible, which ones failed because the hidden test set changed, and which local validation signals were actually trustworthy. For example, we learned that visible-overlap scoring was useful for checking row order and output sanity, but it was not reliable for choosing close model variants.
 
