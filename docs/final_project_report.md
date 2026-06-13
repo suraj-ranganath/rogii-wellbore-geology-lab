@@ -3,7 +3,7 @@
 **Team:** Suraj Ranganath and Arunima Anand  
 **Competition:** [ROGII - Wellbore Geology Prediction](https://www.kaggle.com/competitions/rogii-wellbore-geology-prediction/overview)  
 **Code:** [GitHub repository](https://github.com/suraj-ranganath/rogii-wellbore-geology-lab)  
-**Public Leaderboard Rank:** 142 (As of June 12, 5:55PM)  
+**Public Leaderboard Rank:** 142 out of 2,873 (Silver, as of June 12, 5:55PM)  
 
 ![Public leaderboard rank 142](assets/public_leaderboard_rank_142_2026-06-12_1755.png)
 
