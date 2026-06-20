@@ -25,12 +25,12 @@ baseline:
   target: residual_last_known
   prediction_mask: tvt_input_missing_with_target
   lgbm:
-    n_estimators: 800
-    learning_rate: 0.03
+    n_estimators: 1000
+    learning_rate: 0.02
     num_leaves: 63
-    subsample: 0.9
-    colsample_bytree: 0.85
-    reg_alpha: 0.0
+    subsample: 0.85
+    colsample_bytree: 0.8
+    reg_alpha: 0.1
     reg_lambda: 5.0
     min_child_samples: 20
     verbosity: -1

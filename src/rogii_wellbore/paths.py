@@ -24,3 +24,7 @@ def output_dir() -> Path:
 
 def submission_dir() -> Path:
     return PROJECT_ROOT / "submissions"
+
+
+def logs_dir() -> Path:
+    return PROJECT_ROOT / "logs"

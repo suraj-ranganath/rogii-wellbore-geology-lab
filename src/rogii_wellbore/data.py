@@ -79,8 +79,8 @@ def scan_wells(root: Path) -> list[WellPair]:
     return pairs
 
 
-def read_csv(path: Path, nrows: int | None = None) -> pd.DataFrame:
-    return pd.read_csv(path, nrows=nrows)
+def read_csv(path: Path, nrows: int | None = None, low_memory: bool = False) -> pd.DataFrame:
+    return pd.read_csv(path, nrows=nrows, low_memory=low_memory)
 
 
 def find_sample_submission(root: Path) -> Path | None:
